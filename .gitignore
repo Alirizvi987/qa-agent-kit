@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 .DS_Store
 
 # Test proof stays on your machine (screenshots can show personal data).

@@ -9,6 +9,8 @@ kit writes everything for *your* project.
 
 ---
 
+**New here? Watch the one-minute video first:** [docs/kit/how-it-works.mp4](docs/kit/how-it-works.mp4)
+
 ## In 5 steps
 
 **1. Get the kit**
@@ -111,3 +113,4 @@ After setup, this folder contains:
 - [Setup guide](docs/kit/SETUP-GUIDE.md): Claude Code, connectors, Android phones and emulators
 
 To check the kit itself after changing a template: `npm test`.
+To re-make the video after editing `docs/kit/video/explainer.html`: `node docs/kit/video/render.mjs` (needs ffmpeg).
