@@ -116,7 +116,9 @@ After setup, this folder contains:
 | `npm run health -- FIX_CUSTOMER_A` | Checks a lane's test users can still sign in |
 | `npm run signin -- FIX_CUSTOMER_A_U1 /dashboard` | Signs in and screenshots pages |
 | `npm run save-session -- FIX_CUSTOMER_A_U1` | For email-code or SSO sign-in: a person signs in once, the session is saved outside the repo |
-| `npm run new-run -- pr-123-new-plans` | Starts a run folder: brief, coverage, use cases, emails, design, restore log |
+| `npm run new-run -- pr-123-new-plans` | Starts a run folder: brief, coverage, use cases, emails, design, restore log, report |
+| `npm run new-user -- customer A` | Makes a test user's name, email alias and strong password (saved privately, never shown) |
+| `npm run report` | Turns the run's REPORT.md into one shareable page (REPORT.html, screenshots inside); refuses if proof is missing or a secret slipped in |
 | `scripts/mobile/adb.sh` | Remote control for the Android app: tap by text, screenshot, dark mode, offline |
 | `scripts/mobile/emulator-setup.sh` | Builds emulators that match your real phone's screen |
 | `scripts/mobile/ios.sh` | iPhone simulator: install, launch, screenshot, dark mode, large text, links, location, push |

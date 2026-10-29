@@ -28,4 +28,4 @@ for (const t of await readdir(tdir)) {
 for (const role of project.roles) await mkdir(join(folder, `${role.slug}-A`), { recursive: true });
 if (project.has_mobile) await mkdir(join(folder, 'mobile'), { recursive: true });
 if (!project.sends_email) await import('node:fs/promises').then(fs => fs.rm(join(folder, 'EMAILS.md'), { force: true }));
-console.log(`Run folder ready: ${folder}\nStart with BRIEF.md, then COVERAGE.md and USE-CASES.md.`);
+console.log(`Run folder ready: ${folder}\nStart with BRIEF.md, then COVERAGE.md and USE-CASES.md. REPORT.md is the report template; npm run report makes the page.`);

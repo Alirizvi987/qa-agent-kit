@@ -41,6 +41,14 @@ export function laneUsers(values, prefix) {
     });
 }
 
+// Types a test user's secret (password by default) into a field without it appearing in logs or chat.
+export async function fillSecret(page, selector, key, field = 'PASSWORD') {
+  const project = await loadProject();
+  const value = loadSecrets(project).values[`${key}_${field}`];
+  if (!value) throw new Error(`${key}_${field} is not in the secrets file (npm run new-user makes it)`);
+  await page.fill(selector, value);
+}
+
 export function roleForKey(project, key) {
   return project.roles.find(r => key.startsWith(`FIX_${r.key}_`));
 }

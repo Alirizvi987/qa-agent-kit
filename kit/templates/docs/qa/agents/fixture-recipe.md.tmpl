@@ -17,6 +17,10 @@ A **fixture** is a test account already in a known state. This recipe keeps ever
 
 ## The steps
 
+0. **Make the identity**: `npm run new-user -- {{roles.0.slug}} A` (your role and lane). It picks a real-looking
+   name and email alias, generates a strong password and saves it straight into `{{secrets_file}}`
+   without showing it. Your sign-up script types it with `fillSecret(page, selector, key)` from
+   `scripts/lib/project.mjs`, so it never appears in a log, a file or chat.
 1. **Create** through the real sign-up screens{{#if has_web}} (headless Playwright){{/if}}{{#if has_mobile}}{{#unless has_web}} in the app{{/unless}}{{/if}}. Use the API only when sign-up itself isn't under test, and say so. If accounts can only be made by staff or an invite, ask the lead (`blocked[]`).
 {{#if sends_email}}
 2. **Verify the email**: ask the lead for the link or code from the mailbox (`blocked[]` with the alias), then open it in the background.
@@ -34,14 +38,9 @@ A **fixture** is a test account already in a known state. This recipe keeps ever
 4. **Approval**: no role needs admin approval in this project.
 {{/if}}
 5. **Record it**:
-   - append the credentials to `{{secrets_file}}` in one command:
-     ```bash
-     mkdir -p ~/.qa-secrets && chmod 700 ~/.qa-secrets
-     printf '%s\n' 'FIX_{{roles.0.key}}_A_U1_EMAIL={{mailbox.example_alias}}' 'FIX_{{roles.0.key}}_A_U1_PASSWORD=<generated>' 'FIX_{{roles.0.key}}_A_U1_ID=<user id>' >> {{secrets_file}}
-     chmod 600 {{secrets_file}}
-     ```
+   - add the user id to the secrets file: `printf '%s\n' 'FIX_{{roles.0.key}}_A_U1_ID=<user id>' >> {{secrets_file}}`
    - update your lane journal `docs/qa/lanes/<role>-<lane>.json` (no secrets)
-   - add a row to `docs/qa/test-users.md`
+   - update the user's row in `docs/qa/test-users.md` (new-user already added it): id and state
 {{#if has_saved_sessions}}
 6. **Sign-in by email code or SSO** (no password to store): a person signs the user in once with
    `npm run save-session -- FIX_<ROLE>_A_U1`. A browser window opens; they sign in; the session is saved to

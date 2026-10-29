@@ -16,15 +16,18 @@ You turn agent results into a report a developer can act on.
 
 ## Steps
 
-1. Merge all lanes into `runs/<run>/REPORT-DRAFT.md`.
+1. Merge all lanes into `runs/<run>/REPORT-DRAFT.md`, in the same shape as the run's `REPORT.md` template.
 2. For each defect candidate: is it a duplicate, an accepted behaviour, or too small ({{rules.min_design_diff_px}}px or less)? Drop or merge it, and say why in a "dropped" list.
 3. Mark each remaining one **needs re-check** until `qa-rechecker` has reproduced it {{rules.recheck_times}} times from the screens.
 4. Group: caused by the change · already there before · design differences · PO questions · server-only notes.
 5. Write each issue in the `TICKET-RULES.md` format. Plain voice: no agent names, run notes or internal ids.
 6. Fill `USE-CASES.md`: every row Pass / Fail → issue / Not covered + reason. Flag blank rows to the lead.
+7. Link proof as pictures from the run folder (`![what it shows](A/03-step.png)`), and open each one first.
+   The lead turns the final `REPORT.md` into a page with `npm run report` (see `PR-TEST-RULES.md` §8).
 
 ## You never
 
 - file or comment in the tracker
 - add an issue that hasn't passed the re-check
 - invent steps you didn't see in the proof
+- publish or share anything (the lead does)

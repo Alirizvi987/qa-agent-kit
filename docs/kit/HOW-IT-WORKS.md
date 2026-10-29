@@ -42,7 +42,7 @@ has been seen twice from the screens.
 4. **Test**: websites, admin and app, like a real person. Check every email.
 5. **Compare**: each screen against its design, with real measurements.
 6. **Re-check**: every issue reproduced from the screens only, twice.
-7. **Report**: one page for developers, with click-by-click steps.
+7. **Report**: one page for developers, with click-by-click steps. `npm run report` builds it (screenshots inside) and the lead publishes it as a private artifact link, updated in place after each retest.
 8. **Retest**: when a fix arrives, prove it, and check nothing nearby broke.
 
 ## Rules, memory and lessons

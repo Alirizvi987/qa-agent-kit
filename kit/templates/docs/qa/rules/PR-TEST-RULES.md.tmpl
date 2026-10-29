@@ -109,3 +109,27 @@ Groups, in this order:
 6. The use-case checklist with the "Not covered" list, the coverage grid and the restore log
 
 Format: {{rules.report}}. Every issue follows `TICKET-RULES.md` and has passed the re-check.
+
+## 8. Publishing the report
+
+1. `qa-reporter` writes `REPORT-DRAFT.md`. `qa-rechecker` re-checks every candidate.
+2. The lead writes `REPORT.md` in the run folder (its template is already there), with **only** the
+   re-checked issues, the use-case table and the Not covered list. Screenshots are linked from the
+   run folder: `![what it shows](lane/03-step.png)`.
+3. `npm run report` turns it into `REPORT.html`: one page, screenshots inside. It refuses if a proof
+   file is missing or a password, token or card number is in the text.
+{{#if report_artifact}}
+4. **Publish `REPORT.html` as a Claude artifact** ("publish runs/<run>/REPORT.html as an artifact").
+   Artifacts start private: the lead shares the link with the developers. Save the link in
+   `REPORT-LINK.txt`.
+5. **Retests and updates go to the same link.** Publish the updated page again from the same file, so
+   everyone keeps one address and can see the version history.
+6. No artifacts in your Claude Code (they need the Claude desktop app or claude.ai)? Share `REPORT.html`
+   itself: it opens in any browser, offline.
+{{else}}
+{{#if report_tracker}}
+4. The lead files each issue in {{#if sources.tracker}}{{sources.tracker}}{{else}}the tracker{{/if}} from `REPORT.md`, and shares `REPORT.html` as the summary.
+{{else}}
+4. Share `REPORT.md` (or `REPORT.html`, which opens in any browser) with the developers.
+{{/if}}
+{{/if}}

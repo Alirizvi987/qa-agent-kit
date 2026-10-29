@@ -14,6 +14,8 @@
     "save-session": "node scripts/save-session.mjs",
     "new-run": "node scripts/new-run.mjs",
     "add-to": "node scripts/add-to.mjs",
+    "report": "node scripts/report.mjs",
+    "new-user": "node scripts/new-user.mjs",
     "test": "node kit/selftest.mjs"
   },
   "devDependencies": {

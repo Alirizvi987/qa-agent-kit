@@ -164,7 +164,7 @@ Agent definitions live in `.claude/agents/`. Shared protocol: `docs/qa/agents/RE
 | `qa-reporter` | Merges results and drafts clear issues | after testing |
 | `qa-rechecker` | Repeats each issue from the screen only | before any report |
 
-The lead session (the person plus the main Claude Code chat) plans the run, reads the mailbox, makes approvals and payments, and merges results. Agents can't ask questions mid-run: anything they can't solve comes back as `blocked`.
+The lead session (the person plus the main Claude Code chat) plans the run, reads the mailbox, makes approvals and payments, merges results, and publishes the report (`docs/qa/rules/PR-TEST-RULES.md` §8). Agents can't ask questions mid-run: anything they can't solve comes back as `blocked`.
 
 ## Rule files
 

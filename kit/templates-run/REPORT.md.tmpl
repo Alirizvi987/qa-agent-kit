@@ -1,0 +1,66 @@
+# {{project.name}}: {{run.name}} test report
+
+Tested on `{{main_env}}` · Builds: _web commit / app version_ · {{today}} · {{project.owner}}
+
+<!-- Only issues that passed the re-check go in this file. Drafts stay in REPORT-DRAFT.md.
+     Proof: ![what it shows](lane/03-step.png) embeds a screenshot from this run folder.
+     When it's final: npm run report (makes REPORT.html, the page you publish or share). -->
+
+## Summary
+
+_One or two sentences: what was tested, and the result in plain words._
+
+| | Count |
+|---|---|
+| Caused by this change | 0 |
+| Already there before | 0 |
+| Design differences | 0 |
+| Questions for the product owner | 0 |
+| Use cases: pass · fail · not covered | 0 · 0 · 0 |
+
+## 1. Caused by this change
+
+### P2 · _What is wrong, where_
+
+**Where:** _portal or app · screen · environment · width or device_
+**Who:** _role and account state_
+
+**Steps**
+1. _…_
+2. _…_
+
+**Expected:** _… (spec section or design frame)_
+**Actual:** _…_
+**Seen:** {{rules.recheck_times}} of {{rules.recheck_times}} tries, from the screens only
+
+![_what the screenshot shows_](_lane/01-step.png_)
+
+## 2. Already there before
+
+_None found._
+
+## 3. Design differences
+
+| Screen | Design says | Build shows | Proof |
+|---|---|---|---|
+
+## 4. Questions for the product owner
+
+_Only questions that survived `PO-QUESTION-RULE.md`, each with what was checked and a suggested answer._
+
+## 5. Server-only notes
+
+_Server behaviour with no screen. Not issues, for the developers' information._
+
+## 6. Use cases
+
+| # | Case | Role | State | Status |
+|---|---|---|---|---|
+| 1 | | | | Pass |
+
+**Not covered**
+- _case: reason_
+
+## Settings changed and put back
+
+_From RESTORE-LOG.md, or "None"._

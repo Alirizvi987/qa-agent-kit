@@ -38,6 +38,13 @@ The lead will then:
 4. send the results to `qa-reporter`, then every candidate to `qa-rechecker`
 5. write the report with only the issues that were reproduced twice
 
+## Test users
+
+> Make two Customer test users in lane A and sign them up through the real screens, following fixture-recipe.md.
+
+(`npm run new-user -- customer A` makes the name, email alias and password; the password goes straight
+into the secrets file and is never shown.)
+
 ## Testing a whole flow
 
 > Test the _business sign-up_ flow end to end for every role it touches. Business runs full depth, the others smoke.
@@ -62,8 +69,12 @@ The lead will then:
 
 ## Reports
 
-> Turn the results in runs/_folder_ into a shareable report page for developers. Only re-checked issues.
-> Include the use-case checklist and the Not covered list.
+> Turn the results in runs/_folder_ into the final REPORT.md (only re-checked issues, the use-case
+> checklist and the Not covered list), run npm run report, and publish REPORT.html as an artifact.
+
+After a retest:
+
+> Update the report in runs/_folder_ with the retest results and publish it again to the same link.
 
 ## Questions for the product owner
 

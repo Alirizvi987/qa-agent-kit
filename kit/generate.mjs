@@ -223,6 +223,8 @@ export function prepare(p) {
     ...(d.rules || {}),
   };
   d.rules.severity = list(d.rules.severity).length ? d.rules.severity : ['P1', 'P2', 'P3'];
+  d.report_artifact = /artifact|web page/i.test(d.rules.report);
+  d.report_tracker = /tracker/i.test(d.rules.report);
   d.widths = list(d.widths).map(Number).filter(n => n > 0);
   if (!d.widths.length) d.widths = [1440, 1280, 390];
   d.widths_text = d.widths.join(', ');

@@ -34,3 +34,9 @@ Proof: …
 ```
 
 The lead posts it{{#if sources.tracker}} in {{sources.tracker}}{{/if}} and moves the issue.
+{{#if report_artifact}}
+
+When the issues came from a published report, update that report too: mark each issue Fixed / Partly
+fixed / Not fixed in its `REPORT.md`, run `npm run report -- runs/<that run>`, and publish it again to the
+link in `REPORT-LINK.txt`.
+{{/if}}

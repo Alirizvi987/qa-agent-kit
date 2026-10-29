@@ -43,6 +43,8 @@ const variants = {
     'AGENTS.md': [/Android app `com\.acme\.bookings`/, /iPhone app/, /right to left/, /Safari \(WebKit\)/, /Membership plan/],
     'docs/qa/rules/MOBILE-RULES.md': [/Real phone/, /iOS Simulator/],
     'docs/qa/rules/EMAIL-CHECKS.md': [/qa\.team@acme\.example/],
+    'docs/qa/rules/PR-TEST-RULES.md': [/Publish `REPORT\.html` as a Claude artifact/, /same link/],
+    'docs/qa/rules/RETEST-RUNBOOK.md': [/REPORT-LINK\.txt/],
     '.claude/agents/qa-business.md': [/needs? approval/i],
     '.claude/settings.json': [/ios\.sh/, /adb\.sh/],
   }, absent: ['docs/qa/rules/API-RULES.md'] },
@@ -71,8 +73,9 @@ const variants = {
     'AGENTS.md': [/Product code on this computer: `\.\.`/], '.claude/settings.json': [/git -C \.\. diff/], 'docs/qa/rules/PR-TEST-RULES.md': [/git -C \.\. fetch/] } },
   'odd characters': { p: { project: { name: 'Café "Pro" & Co\'s' }, portals: [{ name: 'Web app (beta)', url: 'http://localhost:3000' }], roles: [{ name: 'Power user "admin"', is_admin: true }, { name: 'Gäst' }], states: ['Trial | ended', 'Ok'] },
     expect: { '.claude/agents/qa-power-user-admin.md': [/Power user 'admin'/], '.claude/agents/qa-gast.md': [/Gäst/] } },
-  'no admin, no email, PayPal without card': { p: { project: { name: 'Quiet' }, environments: [{ name: 'test', url: 'https://t.example' }], portals: [{ name: 'Portal', url: 'https://t.example' }], roles: [{ name: 'Member', needs_approval: true }], states: ['New'], mailbox: { product_sends_email: false }, payments: { provider: 'PayPal' } },
-    expect: { 'AGENTS.md': [/PayPal test mode with the provider's published test details/, /Check every message the product sends/], 'docs/qa/agents/fixture-recipe.md': [/Approval/] }, absent: ['docs/qa/rules/EMAIL-CHECKS.md'] },
+  'no admin, no email, PayPal without card': { p: { project: { name: 'Quiet' }, environments: [{ name: 'test', url: 'https://t.example' }], portals: [{ name: 'Portal', url: 'https://t.example' }], roles: [{ name: 'Member', needs_approval: true }], states: ['New'], mailbox: { product_sends_email: false }, payments: { provider: 'PayPal' }, rules: { report: 'Issues drafted for the tracker' } },
+    expect: { 'AGENTS.md': [/PayPal test mode with the provider's published test details/, /Check every message the product sends/], 'docs/qa/agents/fixture-recipe.md': [/Approval/, /npm run new-user/], 'docs/qa/rules/PR-TEST-RULES.md': [/files each issue in the tracker/] }, absent: ['docs/qa/rules/EMAIL-CHECKS.md'],
+    none: { 'docs/qa/rules/PR-TEST-RULES.md': /Claude artifact/ } },
 };
 
 const BAD = [
