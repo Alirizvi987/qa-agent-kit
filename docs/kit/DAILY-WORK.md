@@ -46,6 +46,16 @@ The lead will then:
 
 > Test the _sign-in and booking_ flow on the Android app. Use the real phone and two emulators in parallel, one lane each.
 
+> Test the same flow on the iPhone simulator. Write the taps as Maestro flows in the run folder.
+
+## APIs
+
+> Test the _create invoice_ endpoint from PR 88: happy path, wrong role, bad input, sent twice. Follow API-RULES.md and save every request and response (no tokens).
+
+## Languages and browsers
+
+> Smoke-test the checkout in every language and browser in project.json. Check the right-to-left layout carefully.
+
 ## Retesting fixes
 
 > These tickets are ready for QA: _AB-101, AB-102, AB-117_. Retest them following docs/qa/rules/RETEST-RUNBOOK.md and draft a comment for each.

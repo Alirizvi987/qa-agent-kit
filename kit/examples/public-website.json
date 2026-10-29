@@ -1,0 +1,98 @@
+{
+  "project": {
+    "name": "City Library site",
+    "summary": "The public website of the city library: opening hours, events and a newsletter sign-up. Editors publish pages in a content admin.",
+    "owner": "Your name",
+    "team": "QA"
+  },
+  "environments": [
+    {
+      "name": "preview",
+      "url": "https://preview.library.test",
+      "production": false
+    },
+    {
+      "name": "live",
+      "url": "https://library.example",
+      "production": true
+    }
+  ],
+  "portals": [
+    {
+      "name": "Public website",
+      "slug": "site",
+      "kind": "web",
+      "sign_in": "none",
+      "url": "https://preview.library.test"
+    },
+    {
+      "name": "Content admin",
+      "slug": "cms",
+      "kind": "admin",
+      "sign_in": "email-code",
+      "url": "https://preview.library.test/admin",
+      "login_path": "/admin/login"
+    }
+  ],
+  "roles": [
+    {
+      "name": "Visitor",
+      "summary": "reads pages and signs up for the newsletter",
+      "portal": "site"
+    },
+    {
+      "name": "Editor",
+      "summary": "writes and publishes pages",
+      "portal": "cms",
+      "is_admin": true
+    }
+  ],
+  "states": [],
+  "mobile": {
+    "android": false,
+    "ios": false
+  },
+  "sources": {
+    "prd": "",
+    "designs": [
+      {
+        "name": "Website designs",
+        "url": "https://www.figma.com/design/EXAMPLE-SITE"
+      }
+    ],
+    "tracker": "None yet",
+    "repos": []
+  },
+  "mailbox": {
+    "address": "web.qa@library.example",
+    "connector": "Outlook",
+    "product_sends_email": true
+  },
+  "payments": {
+    "provider": "None"
+  },
+  "locales": [
+    "en",
+    "fr",
+    "ur"
+  ],
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "widths": [
+    1440,
+    1024,
+    768,
+    390
+  ],
+  "rules": {
+    "recheck_times": 2,
+    "prd_first": false,
+    "min_design_diff_px": 2,
+    "no_cleanup": true,
+    "headless_first": true,
+    "accessibility": true
+  }
+}

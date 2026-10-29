@@ -19,8 +19,10 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
-PKG="$(node -e "const p=require('$ROOT/project.json');process.stdout.write((p.mobile&&p.mobile.package)||'')")"
+PKG="$(node -e "try{const p=require('$ROOT/project.json');process.stdout.write((p.mobile&&p.mobile.package)||'')}catch{}")"
 cmd="${1:-help}"; shift || true
+
+command -v adb >/dev/null || { echo "adb is missing. Install it: brew install --cask android-platform-tools (Windows/Linux: Android SDK platform-tools)"; exit 1; }
 
 need_pkg() { [ -n "$PKG" ] || { echo "Set the app package in the setup screen first."; exit 1; }; }
 
@@ -31,7 +33,7 @@ case "$cmd" in
     adb shell dumpsys package "$PKG" | grep -E 'versionName|versionCode' | head -2
     echo "device: $(adb shell getprop ro.product.model | tr -d '\r') · Android $(adb shell getprop ro.build.version.release | tr -d '\r') · $(adb shell wm size | tr -d '\r') · $(adb shell wm density | tr -d '\r')" ;;
   fg) adb shell dumpsys activity activities | grep -m1 -E 'topResumedActivity|mResumedActivity' | sed 's/^ *//' ;;
-  launch) need_pkg; adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null && echo "launched $PKG" ;;
+  launch) need_pkg; adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 && echo "launched $PKG" ;;
   shot)
     name="${1:?name}"; dir="${2:-.}"; mkdir -p "$dir"
     adb exec-out screencap -p > "$dir/$name.png" && echo "$dir/$name.png" ;;
@@ -62,5 +64,5 @@ case "$cmd" in
     for emu in $(adb devices | awk 'NR>1 && $2=="device" && $1 ~ /^emulator-/ {print $1}'); do
       adb -s "$emu" install-multiple -r "$out"/*.apk >/dev/null && echo "installed the phone's exact app on $emu"
     done ;;
-  *) sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) awk 'NR>1 && /^#/ { sub(/^# ?/, ""); print; next } NR>1 { exit }' "$0" ;;
 esac

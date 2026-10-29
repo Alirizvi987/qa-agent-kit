@@ -10,6 +10,34 @@ Legend: **T** tested and passed · **F** issue found · **–** checked, not aff
 {{#each states}}
 | {{this}} | {{#each roles}}  | {{/each}}
 {{/each}}
+{{#if has_levers}}
+
+## Also across these settings
+
+A change can behave differently under each value. Note which values each square was tested under.
+
+| Setting | Values tested | Result |
+|---|---|---|
+{{#each levers}}
+| {{this}} | | |
+{{/each}}
+{{/if}}
+{{#if has_mobile}}
+
+## Surfaces
+
+| Surface | Tested? | Notes |
+|---|---|---|
+{{#if has_web}}
+| Web | | |
+{{/if}}
+{{#if mobile.android}}
+| Android app | | |
+{{/if}}
+{{#if mobile.ios}}
+| iPhone app | | |
+{{/if}}
+{{/if}}
 
 ## Which combinations exist
 

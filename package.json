@@ -11,7 +11,9 @@
     "smoke": "node scripts/smoke.mjs",
     "health": "node scripts/health-check.mjs",
     "signin": "node scripts/signin-shot.mjs",
+    "save-session": "node scripts/save-session.mjs",
     "new-run": "node scripts/new-run.mjs",
+    "add-to": "node scripts/add-to.mjs",
     "test": "node kit/selftest.mjs"
   },
   "devDependencies": {

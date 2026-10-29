@@ -7,16 +7,24 @@ A **fixture** is a test account already in a known state. This recipe keeps ever
 ## Names and emails
 
 - Short, human-looking names. The email alias matches the name: `Sara Chaudhry` → `{{mailbox.example_alias}}`.
+{{#if has_mailbox}}
 - Alias pattern for this project: `{{mailbox.alias_pattern}}`. Every alias lands in {{mailbox.address}}.
+{{else}}
+- _No tester mailbox yet._ Set one up first (a shared inbox that accepts `name+alias@` addresses works best), then add it in `npm run setup`.
+{{/if}}
 - Add the lane to keep aliases unique: `sara.c1` for lane A, `sara.c1b` for lane B.
 - No machine-style names (`test-2026-10-29-001`). Real-looking data finds real-looking bugs.
 
 ## The steps
 
-1. **Create** through the real sign-up screens (headless Playwright). Use the API only when sign-up itself isn't under test, and say so.
-2. **Verify the email**: ask the lead for the link from the mailbox (`blocked[]` with the alias), then open it headlessly.
+1. **Create** through the real sign-up screens{{#if has_web}} (headless Playwright){{/if}}{{#if has_mobile}}{{#unless has_web}} in the app{{/unless}}{{/if}}. Use the API only when sign-up itself isn't under test, and say so. If accounts can only be made by staff or an invite, ask the lead (`blocked[]`).
+{{#if sends_email}}
+2. **Verify the email**: ask the lead for the link or code from the mailbox (`blocked[]` with the alias), then open it in the background.
+{{else}}
+2. **Verify** the account the way the product asks for (if it does).
+{{/if}}
 {{#if has_payments}}
-3. **Pay** through the real payment screen with the {{payments.provider}} test card `{{payments.test_card}}`, any future expiry, any CVC.
+3. **Pay** through the real payment screen in {{payments.provider}} test mode with {{payments.test_details}}{{#if payments.test_card}}, any future expiry, any CVC{{/if}}.
 {{else}}
 3. **Pay** (if the flow has payments) only with test payment methods.
 {{/if}}
@@ -34,6 +42,12 @@ A **fixture** is a test account already in a known state. This recipe keeps ever
      ```
    - update your lane journal `docs/qa/lanes/<role>-<lane>.json` (no secrets)
    - add a row to `docs/qa/test-users.md`
+{{#if has_saved_sessions}}
+6. **Sign-in by email code or SSO** (no password to store): a person signs the user in once with
+   `npm run save-session -- FIX_<ROLE>_A_U1`. A browser window opens; they sign in; the session is saved to
+   `~/.qa-secrets/sessions/` (outside the repo). The scripts reuse it until it expires. Save the `_EMAIL`
+   line in the secrets file as usual; leave `_PASSWORD` out.
+{{/if}}
 
 ## Getting a user into a state
 

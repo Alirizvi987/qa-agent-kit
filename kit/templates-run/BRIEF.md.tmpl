@@ -14,7 +14,7 @@ _Started {{today}} · environment `{{main_env}}` · lead {{project.owner}}_
 | Lane | Agent | Role | Users | Depth | Device / width |
 |---|---|---|---|---|---|
 {{#each roles}}
-| A | `qa-{{slug}}` | {{name}} | `FIX_{{key}}_A_*` | {{depth}} | {{widths_text}} |
+| A | `qa-{{slug}}` | {{name}} | `FIX_{{key}}_A_*` | {{depth}} | {{#if on_mobile}}_device id_{{else}}{{#if on_api}}API{{else}}{{widths_text}}{{/if}}{{/if}} |
 {{/each}}
 
 ## Deploy notes

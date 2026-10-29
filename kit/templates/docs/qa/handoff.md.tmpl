@@ -43,10 +43,22 @@ Ids and states only (no passwords): see `docs/qa/test-users.md`. Secrets: `{{sec
 
 ## Tool boundaries
 
-- Websites and admin panel: headless Playwright
-{{#if has_mobile}}
-- Mobile: ADB + UIAutomator on the real phone and emulators
+{{#if has_web}}
+- Websites and admin panels: headless Playwright ({{browsers_text}})
 {{/if}}
-- Mailbox: {{mailbox.connector}} connector, lead session only
-- Designs: Figma connector
-- Bug tracker: {{sources.tracker}} (the lead files; agents draft)
+{{#if has_api}}
+- APIs: curl / Node scripts, see `docs/qa/rules/API-RULES.md`
+{{/if}}
+{{#if mobile.android}}
+- Android: ADB + UIAutomator on {{#if mobile.real_phone}}the real phone and {{/if}}emulators
+{{/if}}
+{{#if mobile.ios}}
+- iPhone: iOS Simulator (`scripts/mobile/ios.sh`) + Maestro for taps
+{{/if}}
+{{#if sends_email}}
+- Mailbox: {{#if has_mailbox}}{{mailbox.connector}} connector, lead session only{{else}}_not set up yet_{{/if}}
+{{/if}}
+{{#if has_designs}}
+- Designs: Figma connector (or the design tool's own export)
+{{/if}}
+- Bug tracker: {{#if sources.tracker}}{{sources.tracker}}{{else}}_none yet: issues are shared as reports_{{/if}} (the lead files; agents draft)

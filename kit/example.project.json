@@ -6,52 +6,131 @@
     "team": "QA"
   },
   "environments": [
-    { "name": "dev", "url": "https://dev.acme-bookings.test", "production": false },
-    { "name": "staging", "url": "https://staging.acme-bookings.test", "production": false },
-    { "name": "production", "url": "https://acme-bookings.example", "production": true }
+    {
+      "name": "dev",
+      "url": "https://dev.acme-bookings.test",
+      "production": false
+    },
+    {
+      "name": "staging",
+      "url": "https://staging.acme-bookings.test",
+      "production": false
+    },
+    {
+      "name": "production",
+      "url": "https://acme-bookings.example",
+      "production": true
+    }
   ],
   "portals": [
-    { "name": "Customer website", "slug": "customer", "url": "https://app.dev.acme-bookings.test", "login_path": "/login" },
-    { "name": "Business portal", "slug": "business", "url": "https://business.dev.acme-bookings.test", "login_path": "/login" },
-    { "name": "Admin panel", "slug": "admin", "url": "https://admin.dev.acme-bookings.test", "login_path": "/login" }
+    {
+      "name": "Customer website",
+      "slug": "customer",
+      "url": "https://app.dev.acme-bookings.test",
+      "login_path": "/login",
+      "kind": "web",
+      "sign_in": "password"
+    },
+    {
+      "name": "Business portal",
+      "slug": "business",
+      "url": "https://business.dev.acme-bookings.test",
+      "login_path": "/login",
+      "kind": "web",
+      "sign_in": "password"
+    },
+    {
+      "name": "Admin panel",
+      "slug": "admin",
+      "url": "https://admin.dev.acme-bookings.test",
+      "login_path": "/login",
+      "kind": "admin",
+      "sign_in": "password"
+    }
   ],
   "roles": [
-    { "name": "Customer", "summary": "books appointments and pays a monthly membership", "portal": "customer", "needs_approval": false },
-    { "name": "Business", "summary": "a salon or clinic that lists services and takes bookings", "portal": "business", "needs_approval": true },
-    { "name": "Admin", "summary": "Acme staff who approve businesses and manage settings", "portal": "admin", "is_admin": true }
+    {
+      "name": "Customer",
+      "summary": "books appointments and pays a monthly membership",
+      "portal": "customer",
+      "needs_approval": false
+    },
+    {
+      "name": "Business",
+      "summary": "a salon or clinic that lists services and takes bookings",
+      "portal": "business",
+      "needs_approval": true
+    },
+    {
+      "name": "Admin",
+      "summary": "Acme staff who approve businesses and manage settings",
+      "portal": "admin",
+      "is_admin": true
+    }
   ],
-  "states": ["New sign-up", "Waiting for approval", "Changes requested", "Approved", "Expired", "Suspended", "Rejected", "Deleted"],
+  "states": [
+    "New sign-up",
+    "Waiting for approval",
+    "Changes requested",
+    "Approved",
+    "Expired",
+    "Suspended",
+    "Rejected",
+    "Deleted"
+  ],
   "mobile": {
     "android": true,
-    "ios": false,
+    "ios": true,
     "package": "com.acme.bookings",
     "device": "Samsung Galaxy S22",
     "width": 1080,
     "height": 2340,
     "dpi": 420,
-    "emulators": 3
+    "emulators": 3,
+    "real_phone": true,
+    "ios_bundle": "com.acme.bookings",
+    "ios_simulator": "iPhone 15"
   },
   "sources": {
     "prd": "https://docs.example/acme-bookings-prd",
     "designs": [
-      { "name": "Web designs", "url": "https://www.figma.com/design/EXAMPLE-WEB" },
-      { "name": "Mobile designs", "url": "https://www.figma.com/design/EXAMPLE-MOBILE" }
+      {
+        "name": "Web designs",
+        "url": "https://www.figma.com/design/EXAMPLE-WEB"
+      },
+      {
+        "name": "Mobile designs",
+        "url": "https://www.figma.com/design/EXAMPLE-MOBILE"
+      }
     ],
     "api_docs": "https://dev.acme-bookings.test/api/docs",
     "tracker": "Jira",
     "tracker_url": "https://acme.atlassian.example/jira/BOOK",
     "repos": [
-      { "name": "Website", "url": "https://github.com/acme/bookings-web" },
-      { "name": "Server", "url": "https://github.com/acme/bookings-api" },
-      { "name": "Mobile app", "url": "https://github.com/acme/bookings-mobile" }
+      {
+        "name": "Website",
+        "url": "https://github.com/acme/bookings-web"
+      },
+      {
+        "name": "Server",
+        "url": "https://github.com/acme/bookings-api"
+      },
+      {
+        "name": "Mobile app",
+        "url": "https://github.com/acme/bookings-mobile"
+      }
     ]
   },
   "mailbox": {
     "address": "qa.team@acme.example",
     "alias_pattern": "qa.team+{alias}@acme.example",
-    "connector": "Gmail"
+    "connector": "Gmail",
+    "product_sends_email": true
   },
-  "payments": { "provider": "Stripe", "test_card": "4242 4242 4242 4242" },
+  "payments": {
+    "provider": "Stripe",
+    "test_card": "4242 4242 4242 4242"
+  },
   "login": {
     "email_selector": "input[type=email]",
     "password_selector": "input[type=password]",
@@ -64,8 +143,30 @@
     "min_design_diff_px": 2,
     "no_cleanup": true,
     "headless_first": true,
-    "severity": ["P1", "P2", "P3"],
-    "report": "A shareable web page (Claude artifact)"
+    "severity": [
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "report": "A shareable web page (Claude artifact)",
+    "accessibility": false
   },
-  "widths": [1440, 1280, 390]
+  "widths": [
+    1440,
+    1280,
+    390
+  ],
+  "browsers": [
+    "chromium",
+    "webkit"
+  ],
+  "locales": [
+    "en",
+    "ar"
+  ],
+  "levers": [
+    "Membership plan",
+    "City"
+  ],
+  "other_surfaces": "SMS appointment reminders"
 }

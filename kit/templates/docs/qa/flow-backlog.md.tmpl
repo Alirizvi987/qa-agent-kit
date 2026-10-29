@@ -6,9 +6,13 @@ Mark where we stopped so the next session can continue.
 | # | Flow | Owning role | Other roles | Depth | Status | Run folder |
 |---|---|---|---|---|---|---|
 {{#each tester_roles}}
+{{#if on_api}}
+| | {{slug}}-api-access-and-errors | {{name}} | | full | not started | |
+{{else}}
 | | {{slug}}-signup | {{name}} | {{#if needs_approval}}{{admin_name}}{{/if}} | full | not started | |
 | | {{slug}}-sign-in-and-reset | {{name}} | | full | not started | |
 | | {{slug}}-profile-and-settings | {{name}} | | full | not started | |
+{{/if}}
 {{/each}}
 {{#each admin_roles}}
 | | {{slug}}-approvals | {{name}} | {{#each tester_roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}} | full | not started | |
@@ -16,8 +20,14 @@ Mark where we stopped so the next session can continue.
 {{#if has_payments}}
 | | payments-and-renewals | _owning role_ | | full | not started | |
 {{/if}}
+{{#if sends_email}}
+| | every-email-once | _all roles_ | | full | not started | |
+{{/if}}
 {{#if has_mobile}}
-| | mobile-parity | mobile | | full | not started | |
+| | mobile-install-upgrade-and-parity | mobile | | full | not started | |
+{{/if}}
+{{#if has_locales}}
+| | languages-{{locales_text}} | _all roles_ | | smoke | not started | |
 {{/if}}
 
 Status words: not started · in progress · coverage complete (N open issues) · blocked (why)

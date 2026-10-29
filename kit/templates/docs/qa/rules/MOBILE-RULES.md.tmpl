@@ -1,32 +1,56 @@
 # How the mobile app is tested
 
 {{#if mobile.android}}
-## The phones
+## Android
 
+{{#if mobile.real_phone}}
 - **Real phone:** {{mobile.device}}, connected by cable. Controlled with **ADB** (Android's own remote
   control) and **UIAutomator** (reads every button and label on screen). Helper: `scripts/mobile/adb.sh`.
+{{else}}
+- **No real phone yet**, so every result comes from emulators. Say so in each report: some problems
+  (camera, push notifications, performance, a maker's own Android changes) only show on real phones.
+  Helper: `scripts/mobile/adb.sh`, the same commands as on a phone.
+{{/if}}
 - **Emulators:** {{mobile.emulators}} virtual phones on the computer, set to the same screen
-  ({{mobile.width}}×{{mobile.height}} at {{mobile.dpi}} dpi) so layout findings match the real phone.
-  Create them once with `scripts/mobile/emulator-setup.sh`.
+  ({{mobile.width}}×{{mobile.height}} at {{mobile.dpi}} dpi){{#if mobile.real_phone}} so layout findings match the real phone{{/if}}.
+  Create them once with `scripts/mobile/emulator-setup.sh create`, start them hidden with `scripts/mobile/emulator-setup.sh start`.
+{{#if mobile.real_phone}}
 - **Same app everywhere.** Copy the app off the real phone and install that exact file on every emulator
   (`scripts/mobile/adb.sh clone-apk`). Then all devices run identical bits.
+{{else}}
+- **Same app everywhere.** Install the same build file on every emulator (`scripts/mobile/adb.sh install <file.apk>`).
+{{/if}}
 - **One agent per device.** Two agents on one phone fight over the screen. Give each agent its own
   device id (`adb devices` lists them).
 - App package: `{{mobile.package}}`
+
 {{/if}}
 {{#if mobile.ios}}
-## iOS
+## iPhone
 
-Use the iOS Simulator on a Mac (Xcode). Record the simulator model and iOS version with every result.
+- **iOS Simulator** on a Mac with Xcode, model **{{mobile.ios_simulator}}**. Helper: `scripts/mobile/ios.sh`
+  (screenshots, install, launch, dark mode, large text, links, fake location, push notifications).
+- Install the simulator build (`.app`) the developers provide: `scripts/mobile/ios.sh install <App.app>`.
+  App Store and TestFlight builds don't run on the simulator.
+{{#if mobile.ios_bundle}}
+- App bundle id: `{{mobile.ios_bundle}}`
 {{/if}}
+- **Tapping and typing** need a UI driver on iOS. Use [Maestro](https://maestro.mobile.dev) (`maestro test flow.yaml`,
+  simple YAML steps) or Appium/XCUITest if the developers already have it. Keep flows in the run folder.
+- Record the simulator model and iOS version with every result (`scripts/mobile/ios.sh build`).
+- A real iPhone is needed for camera, Face ID, real push delivery and purchases. Those are tested by the lead
+  by hand, or marked "Not covered: needs a real iPhone".
 
+{{/if}}
 ## Before trusting any result
 
-1. **Record the build**: package, version, build number, environment, date.
+1. **Record the build**: app id, version, build number, environment, device, date.
 2. **Prove the app reaches the server.** Try a login with a wrong password and look for the server's own
    error message. "No connection" means fix the setup first, not a bug.
+{{#if mobile.android}}
 3. **Check the right app is in front** before typing anything, especially passwords:
    `scripts/mobile/adb.sh fg`.
+{{/if}}
 
 ## What to cover
 
@@ -35,12 +59,27 @@ Use the iOS Simulator on a Mac (Xcode). Record the simulator model and iOS versi
 - Sign out and in; the same account signed in on another device
 - Forced update to a newer version, if the app has one
 - No internet, slow internet, server errors
-- Keyboard covering a field, scrolling to the last button, system Back button
+- Keyboard covering a field, scrolling to the last button{{#if mobile.android}}, system Back button{{/if}}{{#if mobile.ios}}, swipe-back gesture{{/if}}
 - Dark mode, large text, long names, empty lists
 - Links from emails (do they open the app or the browser?), permission denied (location, camera, notifications)
 - Location-based features with a fake GPS position
+- Phone turned sideways, if the app allows it
+{{#if has_locales}}
+- Every language ({{locales_text}}){{#if has_rtl}}, and the mirrored layout for {{rtl_text}}{{/if}}
+{{/if}}
+{{#if in_app_payments}}
+- In-app purchases with sandbox testers: buy, cancel, restore, renew, refund
+{{/if}}
+{{#if has_web}}
 - The same screens on the web: same data, same rules
+{{/if}}
 
 ## Proof
 
-Save a screenshot and a UI dump per step (`adb.sh shot <name>` and `adb.sh dump <name>`) into the run folder.
+{{#if mobile.android}}
+- Android: a screenshot and a UI dump per step (`adb.sh shot <name> <dir>` and `adb.sh dump <name> <dir>`).
+{{/if}}
+{{#if mobile.ios}}
+- iPhone: a screenshot per step (`ios.sh shot <name> <dir>`), and the Maestro flow file used.
+{{/if}}
+- Everything goes in the run folder, named by step.

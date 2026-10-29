@@ -9,7 +9,7 @@ Every role agent's **final message is this JSON and nothing else**. Write the fu
   "role": "{{roles.0.slug}}",
   "lane": "A",
   "depth": "full",                     // smoke | full | verify
-  "environment": { "name": "{{main_env}}", "surface": "web", "portal": "{{roles.0.portal_url}}", "build": null },
+  "environment": { "name": "{{main_env}}", "surface": "web", "portal": "{{roles.0.portal_name}}", "build": null },  // surface: web | api | android | ios
   "result": "pass",                    // pass | fail | blocked | partial
   "summary": "One sentence: what was covered and what the result rests on.",
 

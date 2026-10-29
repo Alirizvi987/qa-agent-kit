@@ -1,6 +1,6 @@
 # Email log: {{run.name}}
 
-Mailbox: {{mailbox.address}}. One row per action that can send mail.
+Mailbox: {{#if has_mailbox}}{{mailbox.address}}{{else}}_none yet: every row is "Not covered: no mailbox"_{{/if}}. One row per action that can send mail{{#if has_mobile}} or a push notification{{/if}}.
 
 | Time | Lane | Action | Expected email | Arrived? | Once? | To | Template / data | Links | Result |
 |---|---|---|---|---|---|---|---|---|---|

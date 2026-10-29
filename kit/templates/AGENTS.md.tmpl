@@ -11,26 +11,62 @@ QA owner: {{project.owner}}{{#if project.team}} ({{project.team}}){{/if}}.
 
 ## Where things are
 
+{{#if only_production}}
+> **There is no test environment yet.** Agents only look at the live product: no sign-ups, payments,
+> saves or emails. Flows that need any of those are marked "Not covered: no test environment".
+
+{{/if}}
 **Environments**
 {{#each environments}}
-- `{{name}}`: {{url}}{{#if production}} (**production, the live product: read-only smoke checks only**){{/if}}
+- `{{name}}`: {{#if url}}{{url}}{{else}}_address not added yet_{{/if}}{{#if production}} (**production, the live product: read-only smoke checks only**){{/if}}
 {{/each}}
+{{#unless environments}}
+- _None listed yet. Ask the lead which environment to use before testing._
+{{/unless}}
 
 **What we test**
 {{#each portals}}
-- {{name}}: {{url}} (sign-in page `{{login_path}}`)
+{{#if is_api}}
+- {{name}} (API, no screens): {{#if url}}{{url}}{{else}}_address not added yet_{{/if}}
+{{else}}
+- {{name}}{{#if is_admin_panel}} (admin panel){{/if}}: {{#if url}}{{url}}{{else}}_address not added yet_{{/if}} · sign-in: {{sign_in_text}}{{#if password_sign_in}} at `{{login_path}}`{{/if}}
+{{/if}}
 {{/each}}
 {{#if has_mobile}}
-- Mobile app{{#if mobile.android}}: Android `{{mobile.package}}`{{/if}}{{#if mobile.ios}}, iOS{{/if}}
+{{#if mobile.android}}
+- Android app `{{mobile.package}}`
+{{/if}}
+{{#if mobile.ios}}
+- iPhone app{{#if mobile.ios_bundle}} `{{mobile.ios_bundle}}`{{/if}}
+{{/if}}
+{{/if}}
+{{#if other_surfaces}}
+- Also part of the product: {{other_surfaces}}. These are tested by the lead, with tools agreed in the first week.
 {{/if}}
 
 **Who uses it (roles)**
 {{#each roles}}
-- **{{name}}**: {{summary}}. Uses the {{portal_name}}.{{#if needs_approval}} Needs admin approval.{{/if}}
+- **{{name}}**: {{summary}}. Uses the {{portal_name}}.{{#if needs_approval}} Needs approval before they can use the product.{{/if}}
 {{/each}}
 
 **Account states every change is checked against**
 {{states}}
+{{#if states_defaulted}}
+_(Starter states. Replace them with this product's real ones in `project.json`.)_
+{{/if}}
+{{#if has_levers}}
+
+**Settings that change behaviour** (each change is also checked across these)
+{{levers}}
+{{/if}}
+{{#if has_locales}}
+
+**Languages**: {{locales_text}}{{#if has_rtl}} ({{rtl_text}} read right to left){{/if}}
+{{/if}}
+{{#if has_web}}
+
+**Browsers**: {{browsers_text}} · **Screen widths**: {{widths_text}}
+{{/if}}
 
 **Sources of truth**
 {{#if sources.prd}}
@@ -48,18 +84,32 @@ QA owner: {{project.owner}}{{#if project.team}} ({{project.team}}){{/if}}.
 {{#each sources.repos}}
 - Code, {{name}}: {{url}}
 {{/each}}
+{{#if sources.code_path}}
+- Product code on this computer: `{{sources.code_path}}`. Read changes there to find impact: `git -C {{sources.code_path}} log --oneline -20`, `git -C {{sources.code_path}} diff <base>...<branch> --stat`. Read only; never commit, switch branches or edit code there.
+{{/if}}
+{{#if sends_email}}
+{{#if has_mailbox}}
 - Test mailbox: {{mailbox.address}} (read through the {{mailbox.connector}} connector)
+{{else}}
+- Test mailbox: _not set up yet. Until it is, every email check is "Not covered: no mailbox"._
+{{/if}}
+{{/if}}
+{{#unless sources.prd}}
+- _No product spec linked yet. Ask the lead what "right" is before reporting anything as wrong._
+{{/unless}}
 
 ## Mandatory rules
 
 1. **Read before testing.** This file, then `docs/qa/handoff.md`, then the rule file for the task.
 {{#if rules.headless_first}}
-2. **Work in the background.** Use headless Playwright for websites and admin panels, ADB for Android. Never take over the screen, open visible browser windows or use computer control unless the user asks for it in chat. If a step can't run headless, say so in one line and carry on.
+2. **Work in the background.** Use {{tools_text}}. Never take over the screen, open visible browser windows or use computer control unless the user asks for it in chat. If a step can't run in the background, say so in one line and carry on.
 {{else}}
-2. **Prefer the background.** Use headless Playwright for websites and admin panels and ADB for Android where you can.
+2. **Prefer the background.** Use {{tools_text}} where you can.
 {{/if}}
 {{#if rules.prd_first}}
-3. **Check the spec before reporting anything.** Read `docs/qa/rules/PRD-FIRST-RULE.md`. Quote the PRD section in every issue. Check the "out of scope" part before calling something missing.
+3. **Check the spec before reporting anything.** Read `docs/qa/rules/PRD-FIRST-RULE.md`. Quote the spec section in every issue. Check the "out of scope" part before calling something missing.
+{{else}}
+3. **Say where "expected" comes from.** Every issue names its source: spec, design, previous build or a team decision.
 {{/if}}
 4. **Re-check from the screen, {{rules.recheck_times}} times.** No issue goes into a report until it has been reproduced again using only the screens and real emails: no API calls, no database edits, no faked responses. A fresh agent or the lead does this, not the agent that found it. If it doesn't happen {{rules.recheck_times}} times, drop it.
 5. **Proof from this run.** Never claim a bug without current screenshots, recordings or logs. Open every attachment before you reference it.
@@ -70,13 +120,17 @@ QA owner: {{project.owner}}{{#if project.team}} ({{project.team}}){{/if}}.
 7. **Know where you are.** Say which environment every result came from.
 {{/if}}
 {{#if has_payments}}
-8. **Test money only.** {{payments.provider}} test mode and test cards ({{payments.test_card}}). Charging test accounts on test environments is allowed.
+8. **Test money only.** {{payments.provider}} test mode with {{payments.test_details}}. Charging test accounts on test environments is allowed.
 {{else}}
 8. **No real money.** Never use a real payment method.
 {{/if}}
 9. **Never fake a state to skip a step.** If a gate can't be passed for real, that is a finding. If the lead allows a shortcut, write down that the real path is untested for that user.
 10. **Respect a "no".** If a tool call is refused, stop and report it. Never retry it another way.
+{{#if sends_email}}
 11. **Check emails on every change.** Any action that can send mail gets checked: arrived, once, right people, right template, working links. See `docs/qa/rules/EMAIL-CHECKS.md`.
+{{else}}
+11. **Check every message the product sends** (on-screen notices{{#if has_mobile}}, push notifications{{/if}}): it appears once, for the right people, with the right text and working links.
+{{/if}}
 {{#if rules.no_cleanup}}
 12. **Leave created test data in place.** Accounts and records a run creates stay on the test environment and are listed in the run folder. Put back only shared settings (prices, switches, limits) and test users left in a state that blocks the next test.
 {{else}}
@@ -88,6 +142,9 @@ QA owner: {{project.owner}}{{#if project.team}} ({{project.team}}){{/if}}.
 16. **Every use case gets a status before a report is shared:** Pass, Fail → issue, or Not covered + reason. See `docs/qa/rules/PR-TEST-RULES.md`.
 17. **Keep known failures visible.** "Coverage complete" means everything was tested, not that everything passed.
 18. **Save lessons.** When something surprises you, add a short entry to `docs/qa/LESSONS.md` so the next run doesn't repeat it.
+{{#if rules.accessibility}}
+19. **Accessibility is in scope.** Every screen is checked for keyboard use, visible focus, labels a screen reader can read, colour contrast and text that still fits at 200% zoom{{#if has_mobile}} or large system text{{/if}}.
+{{/if}}
 
 ## The agent team
 
@@ -96,13 +153,13 @@ Agent definitions live in `.claude/agents/`. Shared protocol: `docs/qa/agents/RE
 | Agent | Job | Runs |
 |---|---|---|
 {{#each tester_roles}}
-| `qa-{{slug}}` | Tests {{name}} flows on the {{portal_name}} | side by side with other role agents |
+| `qa-{{slug}}` | Tests {{name}} flows on the {{portal_name}} | {{#if on_mobile}}one per device{{else}}side by side with other role agents{{/if}} |
 {{/each}}
 {{#each admin_roles}}
 | `qa-{{slug}}` | {{name}} actions: approvals, settings, status changes | one at a time |
 {{/each}}
 {{#if has_mobile}}
-| `qa-mobile` | The mobile app on the phone and emulators | one at a time per device |
+| `qa-mobile` | The {{mobile.platforms}} app on {{#if mobile.real_phone}}real phones, {{/if}}emulators and simulators | one at a time per device |
 {{/if}}
 | `qa-reporter` | Merges results and drafts clear issues | after testing |
 | `qa-rechecker` | Repeats each issue from the screen only | before any report |
@@ -117,7 +174,12 @@ The lead session (the person plus the main Claude Code chat) plans the run, read
 - `docs/qa/rules/PO-QUESTION-RULE.md`: when to ask the product owner
 - `docs/qa/rules/TICKET-RULES.md`: how a finding becomes an issue
 - `docs/qa/rules/RETEST-RUNBOOK.md`: how fixes are retested
+{{#if sends_email}}
 - `docs/qa/rules/EMAIL-CHECKS.md`: how emails are checked
+{{/if}}
+{{#if has_api}}
+- `docs/qa/rules/API-RULES.md`: how APIs are tested
+{{/if}}
 {{#if has_mobile}}
 - `docs/qa/rules/MOBILE-RULES.md`: how the mobile app is tested
 {{/if}}

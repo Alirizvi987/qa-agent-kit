@@ -26,4 +26,6 @@ for (const t of await readdir(tdir)) {
   await writeFile(join(folder, t.replace(/\.tmpl$/, '')), out.replace(/\n{3,}/g, '\n\n'));
 }
 for (const role of project.roles) await mkdir(join(folder, `${role.slug}-A`), { recursive: true });
+if (project.has_mobile) await mkdir(join(folder, 'mobile'), { recursive: true });
+if (!project.sends_email) await import('node:fs/promises').then(fs => fs.rm(join(folder, 'EMAILS.md'), { force: true }));
 console.log(`Run folder ready: ${folder}\nStart with BRIEF.md, then COVERAGE.md and USE-CASES.md.`);

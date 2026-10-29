@@ -1,0 +1,103 @@
+{
+  "project": {
+    "name": "Pocket Fit",
+    "summary": "Pocket Fit is a phone app for home workouts. People sign up in the app, pick a plan and track sessions. Premium is bought in the app.",
+    "owner": "Your name",
+    "team": "QA"
+  },
+  "environments": [
+    {
+      "name": "staging",
+      "url": "https://staging-api.pocketfit.test",
+      "production": false
+    },
+    {
+      "name": "production",
+      "url": "https://api.pocketfit.example",
+      "production": true
+    }
+  ],
+  "portals": [],
+  "roles": [
+    {
+      "name": "Member",
+      "summary": "works out with the free or premium plan",
+      "portal": "mobile"
+    },
+    {
+      "name": "Coach",
+      "summary": "publishes workout plans",
+      "portal": "mobile",
+      "needs_approval": true
+    }
+  ],
+  "states": [
+    "New install",
+    "Free plan",
+    "Premium trial",
+    "Premium",
+    "Premium cancelled",
+    "Signed out"
+  ],
+  "mobile": {
+    "android": true,
+    "ios": true,
+    "package": "com.pocketfit.app",
+    "real_phone": false,
+    "width": 1080,
+    "height": 2400,
+    "dpi": 420,
+    "emulators": 2,
+    "ios_bundle": "com.pocketfit.app",
+    "ios_simulator": "iPhone 15"
+  },
+  "sources": {
+    "prd": "",
+    "designs": [
+      {
+        "name": "App designs",
+        "url": "https://www.figma.com/design/EXAMPLE-APP"
+      }
+    ],
+    "tracker": "Linear",
+    "repos": [
+      {
+        "name": "App",
+        "url": "https://github.com/example/pocketfit-app"
+      }
+    ]
+  },
+  "mailbox": {
+    "address": "qa@pocketfit.example",
+    "alias_pattern": "qa+{alias}@pocketfit.example",
+    "connector": "Gmail",
+    "product_sends_email": true
+  },
+  "payments": {
+    "provider": "App Store / Google Play (in-app)",
+    "test_card": ""
+  },
+  "locales": [
+    "en",
+    "es"
+  ],
+  "browsers": [
+    "chromium"
+  ],
+  "levers": [
+    "Country"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "rules": {
+    "recheck_times": 2,
+    "prd_first": true,
+    "min_design_diff_px": 2,
+    "no_cleanup": true,
+    "headless_first": true,
+    "accessibility": true,
+    "report": "A shareable web page (Claude artifact)"
+  }
+}

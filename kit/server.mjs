@@ -46,7 +46,12 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, await readFile(PROJECT, 'utf8'));
     }
     if (req.method === 'GET' && url.pathname === '/api/example') {
-      return send(res, 200, await readFile(join(KIT, 'example.project.json'), 'utf8'));
+      // ?name=mobile-app-only etc. reads kit/examples/<name>.json; no name gives the main example.
+      const name = url.searchParams.get('name') || '';
+      if (name && !/^[a-z0-9-]+$/.test(name)) return send(res, 400, { error: 'Bad example name' });
+      const file = name ? join(KIT, 'examples', `${name}.json`) : join(KIT, 'example.project.json');
+      if (!existsSync(file)) return send(res, 404, { error: 'No such example' });
+      return send(res, 200, await readFile(file, 'utf8'));
     }
     if (req.method === 'POST' && (url.pathname === '/api/generate' || url.pathname === '/api/preview')) {
       if (!sameOrigin(req)) return send(res, 403, { ok: false, errors: ['Requests are only accepted from the setup page.'] });
@@ -65,6 +70,11 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+server.on('error', e => {
+  if (e.code !== 'EADDRINUSE') throw e;
+  console.error(`Port ${PORT} is already in use (maybe setup is already running).\nUse another port: PORT=${PORT + 1} npm run setup`);
+  process.exit(1);
+});
 server.listen(PORT, HOST, () => {
   console.log(`\nQA Agent Kit setup is running.\nOpen this address in your browser:  http://${HOST}:${PORT}\n`);
   console.log(`Workspace folder: ${ROOT}`);

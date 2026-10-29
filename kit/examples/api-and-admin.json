@@ -1,0 +1,93 @@
+{
+  "project": {
+    "name": "Ledger API",
+    "summary": "Ledger API lets partner companies create invoices and read payments over a REST API. A small admin panel lets staff manage partner keys.",
+    "owner": "Your name",
+    "team": "QA"
+  },
+  "environments": [
+    {
+      "name": "sandbox",
+      "url": "https://sandbox.ledger.test",
+      "production": false
+    },
+    {
+      "name": "production",
+      "url": "https://api.ledger.example",
+      "production": true
+    }
+  ],
+  "portals": [
+    {
+      "name": "Public API",
+      "slug": "api",
+      "kind": "api",
+      "url": "https://sandbox.ledger.test",
+      "login_path": "/health",
+      "health_path": "/health"
+    },
+    {
+      "name": "Staff admin",
+      "slug": "admin",
+      "kind": "admin",
+      "sign_in": "sso",
+      "url": "https://admin.sandbox.ledger.test",
+      "login_path": "/login"
+    }
+  ],
+  "roles": [
+    {
+      "name": "Partner",
+      "summary": "a company that calls the API with its own key",
+      "portal": "api"
+    },
+    {
+      "name": "Staff",
+      "summary": "Ledger staff who issue and revoke partner keys",
+      "portal": "admin",
+      "is_admin": true
+    }
+  ],
+  "states": [
+    "Key active",
+    "Key revoked",
+    "Rate limited",
+    "Suspended partner"
+  ],
+  "mobile": {
+    "android": false,
+    "ios": false
+  },
+  "sources": {
+    "prd": "https://docs.example/ledger-spec",
+    "api_docs": "https://sandbox.ledger.test/docs",
+    "designs": [],
+    "tracker": "GitHub Issues",
+    "repos": [
+      {
+        "name": "API",
+        "url": "https://github.com/example/ledger-api"
+      }
+    ]
+  },
+  "mailbox": {
+    "address": "",
+    "product_sends_email": false
+  },
+  "payments": {
+    "provider": "None"
+  },
+  "browsers": [
+    "chromium"
+  ],
+  "widths": [
+    1440
+  ],
+  "rules": {
+    "recheck_times": 2,
+    "prd_first": true,
+    "min_design_diff_px": 2,
+    "no_cleanup": true,
+    "headless_first": true
+  }
+}

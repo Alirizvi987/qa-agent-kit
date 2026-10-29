@@ -11,7 +11,8 @@ time PRs are handed over for testing on {{main_env}}.
    "server-only" list, not in the issues.
 3. **Admin changes** the PR causes: screens, dialogs and real saves. Put shared settings back after.
 4. **Impact**: every account state the change can reach, for every role. Read the code changes to
-   find shared parts (components, emails, server code) that could break other places.
+   find shared parts (components, emails, server code) that could break other places{{#if sources.code_path}}
+   (the code is at `{{sources.code_path}}`: `git -C {{sources.code_path}} fetch` then `git -C {{sources.code_path}} diff <base>...origin/<branch>`, read only){{/if}}.
 5. **Start with a coverage grid** (`runs/<date>-<name>/COVERAGE.md`): PR × server PRs × roles ×
    states × design frames × gaps. Create the run folder with `npm run new-run -- <name>`.
 
@@ -20,6 +21,11 @@ Roles: {{#each roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}.
 
 ## 2. Design check, frame by frame
 
+{{#unless has_designs}}
+_No design files are linked yet. Until they are, compare each screen with the previous build and
+the spec, and list "design check" as Not covered in the report._
+
+{{/unless}}
 - Check only the **newest** designs, and only the frames for the screens and states **this PR** builds or changes.
 - Only the portal the PR is for. Other pages the PR touches are compared with the previous build for side effects.
 - For each frame: text, order, states (default, hover, disabled, empty, error), sizes, spacing, fonts,
@@ -36,13 +42,23 @@ Design files:
 - {{name}}: {{url}}
 {{/each}}
 
-## 3. Emails
+## 3. Emails and messages
 
+{{#if sends_email}}
 Every action that can send mail is checked. See `EMAIL-CHECKS.md`. Keep a log per lane in `EMAILS.md`.
+{{else}}
+Every message the change shows or sends (notices{{#if has_mobile}}, push notifications{{/if}}) is checked: once, right people, right text, working links.
+{{/if}}
 
 ## 4. Test accounts, payments and settings
 
-- Test accounts may be approved and charged on test environments{{#if has_payments}} ({{payments.provider}} test mode, card {{payments.test_card}}){{/if}}. Record every charge against the expected amount.
+{{#if only_production}}
+- **There is no test environment.** Nothing is created, paid or changed; flows that need it are "Not covered".
+{{/if}}
+- Test accounts may be approved and charged on test environments{{#if has_payments}} ({{payments.provider}} test mode, {{payments.test_details}}){{/if}}. Record every charge against the expected amount.
+{{#if has_levers}}
+- Settings that change behaviour ({{levers}}): test the change under each value it can meet, and put shared values back.
+{{/if}}
 - Admin switches may be used to reach a state. **Put every shared value back** and write it in `RESTORE-LOG.md`.
 - Changing admin permissions on real staff accounts always needs the lead's OK first.
 {{#if production}}
@@ -66,7 +82,15 @@ Before a PR report is shared, build `USE-CASES.md` in the run folder from the PR
 
 - every user story, acceptance criterion and requirement in the PR and its spec
 - each role, including read-only ones; each account state; each portal the PR touches
+{{#if sends_email}}
 - each email the actions send
+{{/if}}
+{{#if has_mobile}}
+- the same change in the {{mobile.platforms}} app, if the app uses it
+{{/if}}
+{{#if has_locales}}
+- each language ({{locales_text}})
+{{/if}}
 - edge cases: double click, two tabs saving at once, empty / too long / wrong input, slow or no
   network, links and redirects, opening a page by address without permission
 

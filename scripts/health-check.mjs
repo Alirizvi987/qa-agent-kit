@@ -5,7 +5,7 @@
 //
 // Reads ~/.qa-secrets/<project>.env. Prints results only, never passwords.
 
-import { loadProject, loadSecrets, laneUsers, roleForKey, portalFor, signIn, launchBrowser } from './lib/project.mjs';
+import { loadProject, loadSecrets, laneUsers, roleForKey, portalFor, signIn, launchBrowser, contextFor } from './lib/project.mjs';
 
 const prefix = process.argv[2];
 if (!prefix) {
@@ -25,7 +25,8 @@ let bad = 0, network = 0;
 for (const user of users) {
   const role = roleForKey(project, user.key);
   const portal = portalFor(project, role);
-  const context = await browser.newContext();
+  if (!portal) { console.log(`SKIP  ${user.key}  ${role?.name || '?'} uses the mobile app: check sign-in in the app`); continue; }
+  const context = await contextFor(browser, user);
   const page = await context.newPage();
   let r;
   try {
@@ -40,6 +41,6 @@ for (const user of users) {
 }
 await browser.close();
 
-if (network === users.length) console.log('\nEvery sign-in timed out: check the network or VPN before testing. This is not a product bug.');
+if (network && network === bad && network === users.length) console.log('\nEvery sign-in timed out: check the network or VPN before testing. This is not a product bug.');
 else if (bad) console.log('\nSome test users are broken. Recreate them or report "blocked". Do not report these as product bugs.');
 process.exit(bad ? 1 : 0);

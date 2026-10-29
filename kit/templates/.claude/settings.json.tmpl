@@ -6,13 +6,22 @@
       "Bash(npm run signin:*)",
       "Bash(npm run new-run:*)",
       "Bash(npm run generate:*)",
+      "Bash(npm test:*)",
       "Bash(node scripts/:*)",
-      "Bash(npx playwright:*)"{{#if has_mobile}},
+      "Bash(npx playwright:*)"{{#if sources.code_path}},
+      "Bash(git -C {{sources.code_path}} log:*)",
+      "Bash(git -C {{sources.code_path}} diff:*)",
+      "Bash(git -C {{sources.code_path}} show:*)",
+      "Bash(git -C {{sources.code_path}} fetch:*)"{{/if}}{{#if mobile.android}},
       "Bash(adb devices:*)",
-      "Bash(scripts/mobile/adb.sh:*)"{{/if}}
+      "Bash(scripts/mobile/adb.sh:*)",
+      "Bash(scripts/mobile/emulator-setup.sh:*)"{{/if}}{{#if mobile.ios}},
+      "Bash(scripts/mobile/ios.sh:*)",
+      "Bash(xcrun simctl list:*)"{{/if}}
     ],
     "deny": [
-      "Read(~/.qa-secrets/**)"
+      "Read(~/.qa-secrets/**)",
+      "Bash(cat ~/.qa-secrets:*)"
     ]
   }
 }

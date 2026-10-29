@@ -11,7 +11,11 @@ its own test users, browser sessions and proof, and returns a fixed-format resul
 ## 2. Hard facts that shape every run
 
 1. **Subagents can't ask anything mid-run.** No codes, no decisions. Anything an agent can't solve goes into `blocked[]`.
+{{#if sends_email}}
 2. **The mailbox belongs to the lead.** Agents ask the lead for verification links and email checks through `blocked[]`.
+{{else}}
+2. **People-only steps belong to the lead** (codes, real-device steps, decisions). Agents ask through `blocked[]`.
+{{/if}}
 3. **Approvals and payments are done by the lead** (or the admin agent when the lead sends it).
 4. **Admin and mobile run one at a time.** They change shared things (settings, the device).
 5. **Never borrow another lane's users**, not even to look. If the product signs out a user who signs in elsewhere, sharing users causes fake errors.
@@ -28,7 +32,7 @@ A **lane** is one agent instance's private set of test users. Lane ids are `A`, 
 {{/each}}
 
 Each user gets `<prefix><slot>_EMAIL`, `<prefix><slot>_PASSWORD`, `<prefix><slot>_ID`,
-e.g. `FIX_{{roles.0.key}}_A_U1_EMAIL`.
+e.g. `FIX_{{roles.0.key}}_A_U1_EMAIL`.{{#if has_saved_sessions}} Users who sign in by email code or SSO have no `_PASSWORD`: their saved session (from `npm run save-session`) lives in `~/.qa-secrets/sessions/`.{{/if}}
 
 - Secrets go **only** into `{{secrets_file}}` (outside the repo). Append, never rewrite: other lanes may be writing too.
 - The lane journal (in the repo) holds **no secrets**: user id, role, state, what the account has, which flow made it.
@@ -38,7 +42,7 @@ e.g. `FIX_{{roles.0.key}}_A_U1_EMAIL`.
 
 1. Read `AGENTS.md`, `docs/qa/handoff.md`, this file and `verdict-schema.md`.
 2. Read your lane journal. Know what users you already own before creating more.
-3. Health-check the lane: `npm run health -- FIX_<ROLE>_<LANE>`
+3. Health-check the lane: `npm run health -- FIX_<ROLE>_<LANE>` (mobile-only roles: sign in once in the app instead)
    - Sign-in fails but the site works → the test user is broken. Recreate it or return `blocked`. **Never report it as a product bug.**
    - Every site times out → probably the network. Return `blocked` with `reason: "network"`.
 4. Only then start the flow.

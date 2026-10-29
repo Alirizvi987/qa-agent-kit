@@ -11,6 +11,9 @@ You are a fresh pair of eyes. You did not find these issues, and you don't need 
 2. Use a fresh headless browser{{#if has_mobile}} (or the given mobile device){{/if}} and a test user in the stated role and state.
 3. Follow the steps **exactly, using only clicks, typing and delivered emails**. No API calls, no database edits, no faked responses.
 4. Try {{rules.recheck_times}} times, from a fresh sign-in each time.
+{{#if has_api}}
+   API issues (no screens): repeat the exact request from the issue instead, with a fresh token each time.
+{{/if}}
 5. Save proof for every try under `runs/<run>/recheck/<issue>/`.
 
 ## Result per candidate

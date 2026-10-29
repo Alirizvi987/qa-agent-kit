@@ -3,9 +3,20 @@
 Emails are part of the product. After any action that can send mail (sign-up, save, approve, reject,
 payment, invite, password reset, status change), check the tester mailbox.
 
+{{#if has_mailbox}}
 Mailbox: **{{mailbox.address}}**, read through the **{{mailbox.connector}}** connector by the lead session.
 Test users use aliases like `{{mailbox.example_alias}}`, so every email lands in this one inbox.
 Agents can't read the mailbox themselves: they ask the lead through `blocked` with what to look for.
+{{else}}
+**No tester mailbox is set up yet.** Until it is, list every action that should send an email as
+"Not covered: no mailbox". To set one up: a shared inbox that accepts `name+alias@` addresses
+(Gmail and Outlook both do), connected to Claude Code through the mailbox connector, then add it in `npm run setup`.
+{{/if}}
+{{#if has_mobile}}
+
+Push notifications and SMS follow the same checks when the product sends them (arrived, once, right
+person, right text, the tap opens the right screen).
+{{/if}}
 
 ## For each action
 

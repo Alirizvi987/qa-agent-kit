@@ -29,7 +29,9 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
 .wrap { max-width: 1180px; margin: 0 auto; padding: 0 max(16px, 3vw); }
-header { padding: 48px 0 28px; display: grid; gap: 14px; }
+header { padding: 48px 0 28px; display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 600; min-width: 0; max-width: 100%; }
+.pick select { width: auto; max-width: 100%; min-width: 0; }
 .tag { font: 600 .75rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
 h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.1; text-wrap: balance; }
 h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); font-weight: 800; letter-spacing: -.02em; }
@@ -92,7 +94,7 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
 .cmd { display: flex; gap: 8px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 9px; padding: 9px 12px; font: .8125rem var(--mono); overflow-x: auto; }
 .cmd span { flex: 1; white-space: nowrap; }
 .cmd button { background: transparent; color: var(--paper); border-color: rgb(255 255 255 / .3); padding: 4px 9px; font-size: .75rem; }
-.files { max-height: 220px; overflow: auto; font: .75rem/1.7 var(--mono); color: var(--muted); margin: 0; padding: 0; list-style: none; }
+.files { max-height: 420px; overflow: auto; font: .75rem/1.7 var(--mono); color: var(--muted); margin: 0; padding: 0; list-style: none; }
 </style>
 </head>
 <body>
@@ -102,6 +104,14 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
     <h1>Tell the kit about your project</h1>
     <p class="lede">Fill in what you know. Leave the rest empty and add it later. When you press <b>Create my QA workspace</b>, the kit writes your house rules, rule files and AI test agents into this folder, made for your product.</p>
     <div class="bar">
+      <label class="pick" for="example-pick">Example
+        <select id="example-pick">
+          <option value="">Website + app + admin (Acme Bookings)</option>
+          <option value="mobile-app-only">Mobile app only (Pocket Fit)</option>
+          <option value="api-and-admin">API + staff admin (Ledger API)</option>
+          <option value="public-website">Public website + content admin (City Library)</option>
+        </select>
+      </label>
       <button type="button" id="load-example">Fill with an example</button>
       <button type="button" id="load-saved" class="hidden">Load my saved settings</button>
     </div>
@@ -126,9 +136,9 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
       </fieldset>
 
       <fieldset>
-        <legend><div class="step-head"><span class="num">3</span><div><h2>What you test</h2><p>Each website, portal or admin panel, on your main test environment.</p></div></div></legend>
+        <legend><div class="step-head"><span class="num">3</span><div><h2>What you test</h2><p>Each website, portal, admin panel or API, on your main test environment. Mobile-only? Remove these and tick the app in step 6.</p></div></div></legend>
         <div class="rows" data-list="portals"></div>
-        <div><button type="button" class="small" data-add="portals">+ Add website or portal</button></div>
+        <div><button type="button" class="small" data-add="portals">+ Add website, portal or API</button></div>
       </fieldset>
 
       <fieldset>
@@ -138,7 +148,7 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
       </fieldset>
 
       <fieldset>
-        <legend><div class="step-head"><span class="num">5</span><div><h2>Account states</h2><p>Every situation an account can be in. Each change is checked against all of them.</p></div></div></legend>
+        <legend><div class="step-head"><span class="num">5</span><div><h2>Account states</h2><p>Every situation an account can be in. Each change is checked against all of them. No accounts? Leave it empty.</p></div></div></legend>
         <div class="chips" id="states"></div>
         <div class="chip-add">
           <input id="state-new" type="text" placeholder="e.g. Trial ended" aria-label="New account state">
@@ -153,12 +163,17 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
           <label class="check" for="mobile-ios"><input id="mobile-ios" type="checkbox" data-path="mobile.ios"><span>iOS app</span></label>
         </div>
         <div id="android-fields" class="fields two">
-          <label class="f" for="mobile-package">App package <small>e.g. com.company.app</small><input id="mobile-package" type="text" data-path="mobile.package"></label>
+          <label class="f" for="mobile-package">Android app package <small>e.g. com.company.app</small><input id="mobile-package" type="text" data-path="mobile.package"></label>
+          <label class="check" for="mobile-real"><input id="mobile-real" type="checkbox" data-path="mobile.real_phone"><span>We have a real Android test phone<small>Otherwise emulators only.</small></span></label>
           <label class="f" for="mobile-device">Real test phone<input id="mobile-device" type="text" data-path="mobile.device" placeholder="Samsung Galaxy S22"></label>
           <label class="f" for="mobile-width">Screen width (px)<input id="mobile-width" type="number" data-path="mobile.width" data-type="number" placeholder="1080"></label>
           <label class="f" for="mobile-height">Screen height (px)<input id="mobile-height" type="number" data-path="mobile.height" data-type="number" placeholder="2340"></label>
           <label class="f" for="mobile-dpi">Screen density (dpi)<input id="mobile-dpi" type="number" data-path="mobile.dpi" data-type="number" placeholder="420"></label>
           <label class="f" for="mobile-emulators">Matched emulators<input id="mobile-emulators" type="number" min="0" max="6" data-path="mobile.emulators" data-type="number" placeholder="3"></label>
+        </div>
+        <div id="ios-fields" class="fields two">
+          <label class="f" for="mobile-bundle">iPhone app bundle id <small>e.g. com.company.app</small><input id="mobile-bundle" type="text" data-path="mobile.ios_bundle"></label>
+          <label class="f" for="mobile-sim">Simulator model <small>needs a Mac with Xcode</small><input id="mobile-sim" type="text" data-path="mobile.ios_simulator" placeholder="iPhone 15"></label>
         </div>
       </fieldset>
 
@@ -167,8 +182,9 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
         <div class="fields two">
           <label class="f" for="sources-prd">Product spec (PRD) link<input id="sources-prd" type="url" data-path="sources.prd" placeholder="https://docs…"></label>
           <label class="f" for="sources-api">API docs link<input id="sources-api" type="url" data-path="sources.api_docs" placeholder="https://…/api/docs"></label>
-          <label class="f" for="sources-tracker">Bug tracker<select id="sources-tracker" data-path="sources.tracker"><option>Jira</option><option>Linear</option><option>GitHub Issues</option><option>Plane</option><option>ClickUp</option><option>Asana</option><option>A spreadsheet</option><option>None yet</option></select></label>
+          <label class="f" for="sources-tracker">Bug tracker<select id="sources-tracker" data-path="sources.tracker"><option>Jira</option><option>Linear</option><option>GitHub Issues</option><option>GitLab Issues</option><option>Azure DevOps</option><option>Plane</option><option>ClickUp</option><option>Asana</option><option>Trello</option><option>YouTrack</option><option>A spreadsheet</option><option>None yet</option></select></label>
           <label class="f" for="sources-tracker-url">Tracker link<input id="sources-tracker-url" type="url" data-path="sources.tracker_url"></label>
+          <label class="f" for="sources-code">Product code on this computer <small>optional, e.g. ../my-app; agents only read it</small><input id="sources-code" type="text" class="mono" data-path="sources.code_path" placeholder="../my-app"></label>
         </div>
         <h3 style="font-size:1rem">Design files</h3>
         <div class="rows" data-list="sources.designs"></div>
@@ -180,17 +196,43 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
 
       <fieldset>
         <legend><div class="step-head"><span class="num">8</span><div><h2>Email and payments</h2><p>One tester inbox receives every test email. Payments always use test mode.</p></div></div></legend>
+        <label class="check" for="mailbox-sends"><input id="mailbox-sends" type="checkbox" data-path="mailbox.product_sends_email"><span>The product sends emails<small>Sign-up, resets, invites, receipts… Untick if it sends none.</small></span></label>
         <div class="fields two">
           <label class="f" for="mailbox-address">Tester mailbox<input id="mailbox-address" type="email" data-path="mailbox.address" placeholder="qa.team@company.com"></label>
           <label class="f" for="mailbox-alias">Alias pattern <small>{alias} is replaced per test user</small><input id="mailbox-alias" type="text" data-path="mailbox.alias_pattern" placeholder="qa.team+{alias}@company.com"></label>
           <label class="f" for="mailbox-connector">Mailbox connector<select id="mailbox-connector" data-path="mailbox.connector"><option>Gmail</option><option>Outlook</option><option>Other</option></select></label>
-          <label class="f" for="payments-provider">Payment provider<select id="payments-provider" data-path="payments.provider"><option>None</option><option>Stripe</option><option>Braintree</option><option>Adyen</option><option>PayPal</option><option>Other</option></select></label>
-          <label class="f" for="payments-card">Test card <small>the provider's public test number, never a real card</small><input id="payments-card" type="text" data-path="payments.test_card" placeholder="4242 4242 4242 4242"></label>
+          <label class="f" for="payments-provider">Payment provider<select id="payments-provider" data-path="payments.provider"><option>None</option><option>Stripe</option><option>Braintree</option><option>Adyen</option><option>PayPal</option><option>Checkout.com</option><option>Square</option><option>App Store / Google Play (in-app)</option><option>Other</option></select></label>
+          <label class="f" for="payments-card">Test card <small>the provider's public test number, never a real card; leave empty if none</small><input id="payments-card" type="text" data-path="payments.test_card" placeholder="4242 4242 4242 4242"></label>
         </div>
       </fieldset>
 
       <fieldset>
-        <legend><div class="step-head"><span class="num">9</span><div><h2>House rules</h2><p>The defaults are what work well. Change them only if your team agrees.</p></div></div></legend>
+        <legend><div class="step-head"><span class="num">9</span><div><h2>More to cover</h2><p>Optional. Each one adds checks to the rules and test plan.</p></div></div></legend>
+        <div class="fields two">
+          <label class="f" for="locales">Languages <small>comma separated, e.g. en, fr, ar</small><input id="locales" type="text" data-path="locales" data-type="words" placeholder="en"></label>
+          <label class="f" for="other">Other parts of the product <small>tested by the lead, e.g. desktop app, SMS, printed receipts</small><input id="other" type="text" data-path="other_surfaces"></label>
+        </div>
+        <div>
+          <p style="margin:0 0 8px;font-weight:600;font-size:.875rem">Browsers</p>
+          <div class="fields three">
+            <label class="check" for="br-chromium"><input id="br-chromium" type="checkbox" data-browser="chromium"><span>Chrome / Edge</span></label>
+            <label class="check" for="br-firefox"><input id="br-firefox" type="checkbox" data-browser="firefox"><span>Firefox</span></label>
+            <label class="check" for="br-webkit"><input id="br-webkit" type="checkbox" data-browser="webkit"><span>Safari (WebKit)</span></label>
+          </div>
+        </div>
+        <div>
+          <p style="margin:0 0 8px;font-weight:600;font-size:.875rem">Settings that change behaviour <small style="font-weight:400;color:var(--muted)">plans, regions, feature switches…</small></p>
+          <div class="chips" id="levers"></div>
+          <div class="chip-add" style="margin-top:8px">
+            <input id="lever-new" type="text" placeholder="e.g. Region" aria-label="New setting that changes behaviour">
+            <button type="button" class="small" id="lever-add">Add</button>
+          </div>
+        </div>
+        <label class="check" for="rules-a11y"><input id="rules-a11y" type="checkbox" data-path="rules.accessibility"><span>Check accessibility on every screen<small>Keyboard, focus, labels, contrast, zoom.</small></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">10</span><div><h2>House rules</h2><p>The defaults are what work well. Change them only if your team agrees.</p></div></div></legend>
         <div class="fields two">
           <label class="f" for="rules-recheck">Re-check each issue this many times<input id="rules-recheck" type="number" min="1" max="5" data-path="rules.recheck_times" data-type="number"></label>
           <label class="f" for="rules-px">Ignore design differences up to (px)<input id="rules-px" type="number" min="0" max="10" data-path="rules.min_design_diff_px" data-type="number"></label>
@@ -201,7 +243,7 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
         <label class="check" for="rules-headless"><input id="rules-headless" type="checkbox" data-path="rules.headless_first"><span>Work in the background<small>Hidden browsers and ADB; nothing takes over the screen.</small></span></label>
         <label class="check" for="rules-cleanup"><input id="rules-cleanup" type="checkbox" data-path="rules.no_cleanup"><span>Leave created test data in place<small>Only shared settings are put back after a test.</small></span></label>
         <details>
-          <summary>Sign-in form details (for the health check)</summary>
+          <summary>Sign-in form details (for password sign-in)</summary>
           <div class="fields two">
             <label class="f" for="login-email">Email field<input id="login-email" type="text" class="mono" data-path="login.email_selector"></label>
             <label class="f" for="login-password">Password field<input id="login-password" type="text" class="mono" data-path="login.password_selector"></label>
@@ -245,26 +287,34 @@ const DEFAULTS = {
     { name: 'staging', url: '', production: false },
     { name: 'production', url: '', production: true },
   ],
-  portals: [{ name: 'Website', url: '', login_path: '/login' }, { name: 'Admin panel', url: '', login_path: '/login' }],
+  portals: [{ name: 'Website', kind: 'web', sign_in: 'password', url: '', login_path: '/login' }, { name: 'Admin panel', kind: 'admin', sign_in: 'password', url: '', login_path: '/login' }],
   roles: [
     { name: 'Customer', summary: '', portal: 'website', needs_approval: false, is_admin: false },
     { name: 'Admin', summary: 'staff who approve accounts and manage settings', portal: 'admin-panel', needs_approval: false, is_admin: true },
   ],
   states: ['New sign-up', 'Waiting for approval', 'Approved', 'Expired', 'Suspended', 'Rejected', 'Deleted'],
-  mobile: { android: false, ios: false, package: '', device: 'Samsung Galaxy S22', width: 1080, height: 2340, dpi: 420, emulators: 3 },
+  mobile: { android: false, ios: false, package: '', real_phone: true, device: 'Samsung Galaxy S22', width: 1080, height: 2340, dpi: 420, emulators: 3, ios_bundle: '', ios_simulator: 'iPhone 15' },
   sources: { prd: '', api_docs: '', tracker: 'Jira', tracker_url: '', designs: [{ name: 'Designs', url: '' }], repos: [] },
-  mailbox: { address: '', alias_pattern: '', connector: 'Gmail' },
+  mailbox: { address: '', alias_pattern: '', connector: 'Gmail', product_sends_email: true },
   payments: { provider: 'None', test_card: '' },
   login: { email_selector: 'input[type=email]', password_selector: 'input[type=password]', submit_selector: 'button[type=submit]', success_text: '' },
-  rules: { recheck_times: 2, prd_first: true, min_design_diff_px: 2, no_cleanup: true, headless_first: true, severity: ['P1', 'P2', 'P3'], report: 'A shareable web page (Claude artifact)' },
+  rules: { recheck_times: 2, prd_first: true, min_design_diff_px: 2, no_cleanup: true, headless_first: true, accessibility: false, severity: ['P1', 'P2', 'P3'], report: 'A shareable web page (Claude artifact)' },
   widths: [1440, 1280, 390],
+  browsers: ['chromium'],
+  locales: [],
+  levers: [],
+  other_surfaces: '',
 };
+const KIND = [['web', 'Website or portal'], ['admin', 'Admin panel'], ['api', 'API (no screens)']];
+const SIGN_IN = [['password', 'Email and password'], ['email-code', 'Code or link by email'], ['sso', 'Single sign-on (Google, Microsoft…)'], ['none', 'No sign-in (public)']];
 
 const LISTS = {
   environments: { add: { name: '', url: '', production: false }, fields: [
     ['name', 'Name', 'text', 'staging'], ['url', 'Address', 'url', 'https://staging.company.com'], ['production', 'This is the live product', 'checkbox'] ] },
-  portals: { add: { name: '', url: '', login_path: '/login' }, fields: [
-    ['name', 'Name', 'text', 'Customer website'], ['url', 'Address on the test environment', 'url', 'https://app.dev.company.com'], ['login_path', 'Sign-in page', 'text', '/login'] ] },
+  portals: { add: { name: '', kind: 'web', sign_in: 'password', url: '', login_path: '/login' }, fields: [
+    ['name', 'Name', 'text', 'Customer website'], ['url', 'Address on the test environment', 'url', 'https://app.dev.company.com'],
+    ['kind', 'What it is', 'select', KIND], ['sign_in', 'How people sign in', 'select', SIGN_IN],
+    ['login_path', 'Sign-in page (or API health path)', 'text', '/login'] ] },
   roles: { add: { name: '', summary: '', portal: '', needs_approval: false, is_admin: false }, fields: [
     ['name', 'Role name', 'text', 'Customer'], ['summary', 'What they do', 'text', 'books appointments'], ['portal', 'Uses', 'portal'],
     ['needs_approval', 'Needs admin approval', 'checkbox'], ['is_admin', 'This is an admin / staff role', 'checkbox'] ] },
@@ -291,10 +341,17 @@ function renderScalars() {
   document.querySelectorAll('[data-path]').forEach(el => {
     const v = get(state, el.dataset.path);
     if (el.type === 'checkbox') el.checked = Boolean(v);
-    else if (el.dataset.type === 'numbers') el.value = (v || []).join(', ');
+    else if (el.dataset.type === 'numbers' || el.dataset.type === 'words') el.value = (v || []).join(', ');
     else el.value = v ?? '';
   });
+  document.querySelectorAll('[data-browser]').forEach(el => { el.checked = (state.browsers || []).includes(el.dataset.browser); });
+  showMobileFields();
+}
+
+function showMobileFields() {
   $('#android-fields').classList.toggle('hidden', !state.mobile.android);
+  $('#ios-fields').classList.toggle('hidden', !state.mobile.ios);
+  $('#mobile-device').closest('label').classList.toggle('hidden', state.mobile.real_phone === false);
 }
 
 function renderList(name) {
@@ -307,7 +364,11 @@ function renderList(name) {
       const id = `${name.replace('.', '-')}-${i}-${key}`;
       const attrs = `id="${id}" data-row="${name}" data-i="${i}" data-key="${key}"`;
       if (type === 'checkbox') return `<label class="check" for="${id}"><input type="checkbox" ${attrs} ${item[key] ? 'checked' : ''}><span>${label}</span></label>`;
-      if (type === 'portal') return `<label class="f" for="${id}">${label}<select ${attrs}>${portals.map(p => `<option value="${esc(p.slug)}" ${p.slug === item.portal ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+      if (type === 'portal') {
+        const opts = [...portals, ...(state.mobile.android || state.mobile.ios ? [{ slug: 'mobile', name: 'Mobile app' }] : [])];
+        return `<label class="f" for="${id}">${label}<select ${attrs}>${opts.map(p => `<option value="${esc(p.slug)}" ${p.slug === item.portal ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+      }
+      if (type === 'select') return `<label class="f" for="${id}">${label}<select ${attrs}>${ph.map(([v, t]) => `<option value="${v}" ${v === (item[key] || ph[0][0]) ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
       return `<label class="f" for="${id}">${label}<input type="${type}" ${attrs} value="${esc(item[key])}" placeholder="${esc(ph)}"></label>`;
     }).join('');
     return `<div class="row"><div class="fields ${cfg.fields.length > 3 ? 'two' : 'three'}">${fields}</div><button type="button" class="remove" data-remove="${name}" data-i="${i}" aria-label="Remove">×</button></div>`;
@@ -316,17 +377,22 @@ function renderList(name) {
 
 function renderStates() {
   $('#states').innerHTML = state.states.map((s, i) => `<span class="chip">${esc(s)}<button type="button" data-state="${i}" aria-label="Remove ${esc(s)}">×</button></span>`).join('');
+  $('#levers').innerHTML = (state.levers || []).map((s, i) => `<span class="chip">${esc(s)}<button type="button" data-lever="${i}" aria-label="Remove ${esc(s)}">×</button></span>`).join('');
 }
 
 function renderSummary() {
   const roles = state.roles.filter(r => r.name);
-  const agents = [...roles.map(r => 'qa-' + slugify(r.name)), ...(state.mobile.android || state.mobile.ios ? ['qa-mobile'] : []), 'qa-reporter', 'qa-rechecker'];
+  const mobile = state.mobile.android || state.mobile.ios;
+  const api = state.portals.some(p => p.kind === 'api');
+  const email = state.mailbox.product_sends_email !== false;
+  const agents = [...roles.map(r => 'qa-' + slugify(r.name)), ...(mobile ? ['qa-mobile'] : []), 'qa-reporter', 'qa-rechecker'];
   $('#agent-list').innerHTML = agents.map(a => `<span>${esc(a)}</span>`).join('');
+  const rules = ['PR testing', 'spec-first', 'retests', 'issues', 'PO questions', ...(email ? ['emails'] : []), ...(api ? ['APIs'] : []), ...(mobile ? ['mobile'] : [])];
   const items = [
     `${agents.length} AI test agents, one per role plus reporter and re-checker`,
     'House rules (AGENTS.md) and a one-page handoff',
-    '7 rule files: PR testing, spec-first, emails, retests, issues, PO questions' + (state.mobile.android || state.mobile.ios ? ', mobile' : ''),
-    `An impact grid: ${roles.length} roles × ${state.states.length} states`,
+    `${rules.length} rule files: ${rules.join(', ')}`,
+    `An impact grid: ${roles.length} role${roles.length === 1 ? '' : 's'} × ${state.states.length || 3} states${(state.levers || []).length ? ` × ${state.levers.length} setting${state.levers.length > 1 ? 's' : ''}` : ''}`,
     'A first-week checklist, test plan and flow backlog',
     'A test-user recipe and a shared lessons file',
     'Claude Code permissions for the kit\'s scripts',
@@ -347,8 +413,13 @@ document.addEventListener('input', e => {
     let v = el.type === 'checkbox' ? el.checked : el.value;
     if (el.dataset.type === 'number') v = el.value === '' ? '' : Number(el.value);
     if (el.dataset.type === 'numbers') v = el.value.split(',').map(x => Number(x.trim())).filter(Boolean);
+    if (el.dataset.type === 'words') v = el.value.split(',').map(x => x.trim()).filter(Boolean);
     set(state, el.dataset.path, v);
-    if (el.dataset.path === 'mobile.android') $('#android-fields').classList.toggle('hidden', !el.checked);
+    if (el.dataset.path.startsWith('mobile.')) { showMobileFields(); renderList('roles'); }
+  } else if (el.dataset.browser) {
+    const on = new Set(state.browsers || []);
+    el.checked ? on.add(el.dataset.browser) : on.delete(el.dataset.browser);
+    state.browsers = ['chromium', 'firefox', 'webkit'].filter(b => on.has(b));
   } else if (el.dataset.row) {
     const item = get(state, el.dataset.row)[Number(el.dataset.i)];
     item[el.dataset.key] = el.type === 'checkbox' ? el.checked : el.value;
@@ -375,6 +446,7 @@ document.addEventListener('click', e => {
     renderList(t.dataset.remove); if (t.dataset.remove === 'portals') renderList('roles'); renderSummary();
   }
   if (t.dataset.state !== undefined) { state.states.splice(Number(t.dataset.state), 1); renderStates(); renderSummary(); }
+  if (t.dataset.lever !== undefined) { state.levers.splice(Number(t.dataset.lever), 1); renderStates(); renderSummary(); }
 });
 
 function addState() {
@@ -385,6 +457,15 @@ function addState() {
 }
 $('#state-add').addEventListener('click', addState);
 $('#state-new').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addState(); } });
+function addLever() {
+  const input = $('#lever-new');
+  const v = input.value.trim();
+  state.levers ??= [];
+  if (v && !state.levers.includes(v)) { state.levers.push(v); renderStates(); renderSummary(); }
+  input.value = ''; input.focus();
+}
+$('#lever-add').addEventListener('click', addLever);
+$('#lever-new').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addLever(); } });
 
 function payload() {
   const p = structuredClone(state);
@@ -396,6 +477,7 @@ function payload() {
 
 async function submit(path) {
   $('#errors').classList.add('hidden');
+  $('#result').classList.add('hidden');
   const res = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload()) });
   const r = await res.json().catch(() => ({ ok: false, errors: ['The setup server did not answer. Is "npm run setup" still running?'] }));
   if (!r.ok) {
@@ -410,7 +492,7 @@ async function submit(path) {
     <div class="next">
       <h3>Next steps</h3>
       <p style="margin:0">1. In a terminal in this folder, install the browser tools once:</p>
-      <div class="cmd"><span>npm install && npx playwright install chromium</span><button type="button" data-copy>Copy</button></div>
+      <div class="cmd"><span>npm install && npx playwright install ${esc((state.browsers || ['chromium']).join(' ') || 'chromium')}</span><button type="button" data-copy>Copy</button></div>
       <p style="margin:0">2. Open Claude Code in this folder and say:</p>
       <div class="cmd"><span>Read AGENTS.md and start docs/qa/FIRST-WEEK.md with me.</span><button type="button" data-copy>Copy</button></div>
       <p style="margin:0">3. Check every website loads:</p>
@@ -419,6 +501,7 @@ async function submit(path) {
   $('#result').className = 'msg ok';
   $('#result').innerHTML = `<h3>${r.dry ? 'Preview: nothing was written' : 'Your QA workspace is ready'}</h3>
     <p style="margin:4px 0 0" class="mono">${esc(r.folder)}</p>
+    ${(r.warnings || []).length ? `<div class="msg" style="background:var(--warn-soft);margin-top:10px"><b>Good to know</b><ul>${r.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
     ${list(verb[0], r.created)}${list(verb[1], r.written)}${list('Kept as you left them', r.kept)}${next}`;
   $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -436,11 +519,15 @@ async function load(path) {
   const res = await fetch(path);
   if (!res.ok || res.status === 204) return false;
   state = merge(DEFAULTS, await res.json());
-  state.portals = state.portals.map(p => ({ ...p, slug: p.slug || slugify(p.name) }));
+  state.portals = state.portals.map(p => ({ kind: 'web', sign_in: 'password', ...p, slug: p.slug || slugify(p.name) }));
+  state.states ??= []; state.levers ??= []; state.browsers ??= ['chromium'];
   renderAll();
   return true;
 }
-$('#load-example').addEventListener('click', () => load('/api/example'));
+$('#load-example').addEventListener('click', () => {
+  const name = $('#example-pick').value;
+  load('/api/example' + (name ? `?name=${encodeURIComponent(name)}` : ''));
+});
 $('#load-saved').addEventListener('click', () => load('/api/project'));
 
 renderAll();

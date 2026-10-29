@@ -9,14 +9,14 @@ kit writes everything for *your* project.
 
 ---
 
-**New here? Watch the one-minute video first:** [docs/kit/how-it-works.mp4](docs/kit/how-it-works.mp4)
+**New here? Watch the two-minute video first:** [how-it-works.mp4](https://github.com/Alirizvi987/qa-agent-kit/raw/main/docs/kit/how-it-works.mp4)
 
 ## In 5 steps
 
 **1. Get the kit**
 
 ```bash
-git clone <this repository's address> my-project-qa
+git clone https://github.com/Alirizvi987/qa-agent-kit my-project-qa
 cd my-project-qa
 ```
 
@@ -34,8 +34,8 @@ npm run setup
 ```
 
 Open **http://127.0.0.1:4321** in your browser. Fill in your project: websites, roles, account states,
-design links and so on. Press **Fill with an example** to see what a finished form looks like.
-Press **Create my QA workspace**.
+design links and so on. Pick an example and press **Fill with an example** to see a finished form
+(website + app + admin, mobile app only, API + admin, or a public website). Press **Create my QA workspace**.
 
 > Prefer chatting? Open Claude Code in this folder and say _"Set up this kit for my project"_.
 > It will ask you the same questions and write the files.
@@ -53,6 +53,40 @@ Open Claude Code in this folder and say:
 > Read AGENTS.md and start docs/qa/FIRST-WEEK.md with me.
 
 That's it. From here, see [How to work day to day](docs/kit/DAILY-WORK.md).
+
+### Prefer it inside your own project's repo?
+
+Clone this kit anywhere once, then copy it into your project:
+
+```bash
+npm run add-to -- ../my-app
+cd ../my-app/qa && npm install && npx playwright install chromium && npm run setup
+```
+
+The QA workspace then lives in `my-app/qa`, is committed with your code, and the agents can read your
+code (read only) to judge what a change affects. Open Claude Code in `my-app/qa`.
+Or just ask Claude Code in this folder: _"Set this kit up inside ~/code/my-app"_.
+
+---
+
+## Works for any project
+
+Tick what your product has; the rules, agents and scripts fit around it.
+
+| Your product has… | The kit adds |
+|---|---|
+| Websites and portals | hidden-browser testing at every screen width, in Chrome/Edge, Firefox and Safari (WebKit) |
+| An admin panel | an admin agent that runs one at a time and puts shared settings back |
+| An Android app | ADB remote control, emulators matched to your real phone (or emulators only) |
+| An iPhone app | iOS Simulator helper (Mac + Xcode) and Maestro for taps |
+| Only an API | API rules: status codes, permissions, bad input, duplicates; smoke checks the health address |
+| Any sign-in | email + password (one or two steps), email code, single sign-on, or none (public pages) |
+| Emails | a tester mailbox check on every action; none if the product sends no email |
+| Payments | test mode for any provider, including App Store / Google Play in-app purchases |
+| Several languages | every language checked, right-to-left layouts flagged (Arabic, Hebrew, Urdu…) |
+| Plans, regions, feature switches | added to the impact grid, so each change is checked under each value |
+| No test environment yet | agents only look at the live product, never change it |
+| Missing pieces (no spec, no designs, no mailbox) | setup still works; those checks are marked "Not covered" until they exist |
 
 ---
 
@@ -81,10 +115,13 @@ After setup, this folder contains:
 | `npm run smoke` | Opens every website at every screen width, saves screenshots and a summary |
 | `npm run health -- FIX_CUSTOMER_A` | Checks a lane's test users can still sign in |
 | `npm run signin -- FIX_CUSTOMER_A_U1 /dashboard` | Signs in and screenshots pages |
+| `npm run save-session -- FIX_CUSTOMER_A_U1` | For email-code or SSO sign-in: a person signs in once, the session is saved outside the repo |
 | `npm run new-run -- pr-123-new-plans` | Starts a run folder: brief, coverage, use cases, emails, design, restore log |
 | `scripts/mobile/adb.sh` | Remote control for the Android app: tap by text, screenshot, dark mode, offline |
 | `scripts/mobile/emulator-setup.sh` | Builds emulators that match your real phone's screen |
+| `scripts/mobile/ios.sh` | iPhone simulator: install, launch, screenshot, dark mode, large text, links, location, push |
 | `npm run setup` / `npm run generate` | Change your project details and refresh the files |
+| `npm run add-to -- ../my-app` | Copy the kit into a `qa` folder inside your own project's repo |
 
 ---
 
@@ -112,5 +149,7 @@ After setup, this folder contains:
 - [Daily work](docs/kit/DAILY-WORK.md): what to say to Claude Code for each kind of task
 - [Setup guide](docs/kit/SETUP-GUIDE.md): Claude Code, connectors, Android phones and emulators
 
-To check the kit itself after changing a template: `npm test`.
+To check the kit itself after changing a template: `npm test`. It builds a workspace for nine different
+kinds of project (web + app, mobile only, API only, public site, live-only, inside a product repo, bare minimum, odd characters,
+no email) and checks every file.
 To re-make the video after editing `docs/kit/video/explainer.html`: `node docs/kit/video/render.mjs` (needs ffmpeg).

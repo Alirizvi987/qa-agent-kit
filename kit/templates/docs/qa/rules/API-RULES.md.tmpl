@@ -1,0 +1,39 @@
+# How APIs are tested
+
+Some of {{project.name}} has no screens: other programs call it.
+
+{{#each api_portals}}
+- **{{name}}**: {{#if url}}{{url}}{{else}}_address not added yet_{{/if}} (health check path `{{health_path}}`)
+{{/each}}
+{{#if sources.api_docs}}
+
+API docs: {{sources.api_docs}}
+{{/if}}
+
+## What "tested" means for an API
+
+For each endpoint a change touches:
+
+1. **The happy path**: the right status code, the right fields and types, the right data saved
+   (read it back with a second call).
+2. **Who may call it**: no sign-in, an expired sign-in, the wrong role, another customer's data.
+   Each must be refused with the documented code (usually 401 or 403), never a 500.
+3. **Bad input**: missing fields, wrong types, too long, empty, special characters, duplicates.
+   Expect a clear 4xx with a useful message, never a 500.
+4. **Limits**: paging (first, last, empty page), sorting, very large lists, rate limits.
+5. **Twice in a row**: the same create or payment sent twice must not make two.
+6. **Matches the docs**: every difference between the docs and real responses is a finding.
+7. **Side effects**: emails, webhooks and other systems the call should (or should not) trigger.
+
+## How
+
+- Use `curl` or small Node scripts in the run folder (`fetch`). Save every request and response
+  (with passwords and tokens removed) as proof.
+- Get a sign-in token for a test user only at run time; never write it into a file.
+- `npm run smoke` checks every API address answers.
+
+## API issues
+
+Steps are the exact request (method, path, body with secrets removed) and the response received.
+The re-check repeats the same request, {{rules.recheck_times}} times, from a fresh sign-in.
+When the API also has screens, the issue is checked from the screens too.
