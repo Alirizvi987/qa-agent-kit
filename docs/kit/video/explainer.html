@@ -2,225 +2,311 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>QA Agent Kit, how it works</title>
+<title>Explainer</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* A 1280×720 stage. Every scene and element is a CSS animation on one shared timeline:
-   --s is the scene start (seconds), --o an element's offset inside its scene.
-   render.mjs pauses the timeline and seeks it frame by frame. */
+/* A 1920×1080 stage. Every scene and element is a CSS animation on one shared timeline:
+   --s is the scene start (seconds), --len its length, --o an element's offset inside its scene.
+   render.mjs checks nothing is cut off, then pauses the timeline and seeks it frame by frame.
+   Every scene is centred and keeps at least 96px clear on each side. Nothing scrolls or crops. */
 :root {
-  --paper: #F3F5F2; --surface: #FFFFFF; --sunk: #E8ECE8; --ink: #16201B; --muted: #55625B; --line: #D6DDD8;
-  --accent: #0B6B52; --accent-soft: #DCEEE6; --fail: #B4381F; --fail-soft: #F7E2DB; --warn: #946100; --warn-soft: #F4EAD2;
+  --paper: #F3F5F2; --surface: #FFFFFF; --sunk: #E8ECE8; --ink: #16201B; --muted: #4E5B54; --line: #D6DDD8;
+  --accent: #0B6B52; --accent-soft: #DCEEE6; --fail: #B4381F; --fail-soft: #F7E2DB;
   --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body: "Instrument Sans", "Helvetica Neue", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--body); }
-.scene { position: absolute; inset: 0; padding: 64px 88px; display: grid; align-content: center; gap: 22px;
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--body); }
+.scene { position: absolute; inset: 0; padding: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; text-align: center;
   animation: scene calc(var(--len) * 1s) linear calc(var(--s) * 1s) both; }
 .scene.last { animation-name: scene-last; }
-@keyframes scene { 0% { opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes scene-last { 0% { opacity: 0; } 5% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes scene { 0% { opacity: 0; } 4% { opacity: 1; } 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes scene-last { 0% { opacity: 0; } 4% { opacity: 1; } 100% { opacity: 1; } }
 .a { animation: rise .7s cubic-bezier(.2, .8, .2, 1) calc((var(--s) + var(--o, 0)) * 1s) both; }
-@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
 .pop { animation: pop .5s cubic-bezier(.2, .9, .3, 1.4) calc((var(--s) + var(--o, 0)) * 1s) both; }
-@keyframes pop { from { opacity: 0; transform: scale(1.6) rotate(-8deg); } to { opacity: 1; transform: rotate(-4deg); } }
-.lit { animation: lit .5s ease calc((var(--s) + var(--o, 0)) * 1s) both; }
+@keyframes pop { from { opacity: 0; transform: scale(1.5) rotate(-8deg); } to { opacity: 1; transform: rotate(-3deg); } }
+.lit { animation: rise .7s cubic-bezier(.2, .8, .2, 1) calc((var(--s) + var(--o, 0)) * 1s) both, lit .5s ease calc((var(--s) + var(--o, 0) + .5) * 1s) both; }
 @keyframes lit { from { background: var(--surface); color: var(--ink); border-color: var(--line); } to { background: var(--accent); color: #fff; border-color: var(--accent); } }
 
-.step { font: 600 15px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
-h1 { font: 800 76px/1.02 var(--display); letter-spacing: -.025em; margin: 0; }
-h2 { font: 800 50px/1.06 var(--display); letter-spacing: -.02em; margin: 0; max-width: 20ch; }
-.say { font-size: 24px; line-height: 1.45; color: var(--muted); max-width: 46ch; margin: 0; }
+.step { font: 600 24px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 800 112px/1.02 var(--display); letter-spacing: -.025em; margin: 0; max-width: 16ch; text-wrap: balance; }
+h2 { font: 800 72px/1.06 var(--display); letter-spacing: -.02em; margin: 0; max-width: 24ch; text-wrap: balance; }
+.say { font-size: 34px; line-height: 1.4; color: var(--muted); max-width: 44ch; margin: 0; }
 .say b { color: var(--ink); }
 
+/* Two columns, centred as a pair */
+.row2 { display: flex; align-items: center; justify-content: center; gap: 72px; text-align: left; }
+.side-note { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.side-note h2 { font-size: 60px; }
+.side-note .say { font-size: 30px; }
+
 /* Title */
-.title-mark { width: 84px; height: 84px; border-radius: 20px; background: var(--accent); display: grid; place-items: center; }
-.title-mark svg { width: 46px; height: 46px; }
+.title-mark { width: 120px; height: 120px; border-radius: 28px; background: var(--accent); display: grid; place-items: center; }
+.title-mark svg { width: 66px; height: 66px; }
 
 /* Terminal */
-.term { background: var(--ink); color: #E6ECE8; border-radius: 16px; padding: 26px 30px; font: 21px/1.9 var(--mono); width: 940px; box-shadow: 0 20px 50px -24px rgb(0 0 0 / .45); }
-.term .dots { display: flex; gap: 8px; margin-bottom: 14px; }
-.term .dots i { width: 12px; height: 12px; border-radius: 50%; background: #3A4641; }
-.line { display: block; white-space: nowrap; overflow: hidden; width: 0;
-  animation: type calc(var(--t, 1.4) * 1s) calc((var(--s) + var(--o, 0)) * 1s) both; }
-@keyframes type { to { width: calc(var(--n) * 1ch); } }
-.line .p { color: #5DC59E; }
-.out { color: #9AA9A1; }
+.term { background: var(--ink); color: #E6ECE8; border-radius: 22px; padding: 36px 48px 40px; font: 32px/1.85 var(--mono); width: 1240px; text-align: left; box-shadow: 0 30px 70px -30px rgb(0 0 0 / .45); }
+.term .dots { display: flex; gap: 12px; margin-bottom: 18px; }
+.term .dots i { width: 16px; height: 16px; border-radius: 50%; background: #3A4641; }
+.term .line { display: block; white-space: nowrap; }
+.term .p { color: #5DC59E; }
+.term .out { color: #A9B7AF; }
 
-/* Browser frame */
-.browser { width: 900px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 24px 60px -28px rgb(0 0 0 / .35); position: relative; }
-.browser .bar { height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: var(--sunk); font: 13px var(--mono); color: var(--muted); }
-.browser .bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
-.browser .bar span { margin-left: 14px; background: var(--surface); padding: 3px 12px; border-radius: 6px; }
-.browser .view { height: 440px; overflow: hidden; }
-.browser img { width: 100%; display: block; animation: scroll 7s ease-in-out calc((var(--s) + 1.6) * 1s) both; }
-@keyframes scroll { from { transform: translateY(0); } to { transform: translateY(-190px); } }
-.side-note { display: grid; gap: 14px; }
-.row2 { display: grid; grid-template-columns: auto 1fr; gap: 44px; align-items: center; }
-.tick { display: flex; gap: 12px; align-items: center; font-size: 21px; }
-.tick::before { content: "✓"; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; flex: none; }
+/* Screenshots: always shown whole, scaled to fit */
+.shot { display: block; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 30px 70px -34px rgb(0 0 0 / .35); }
+.shot.fit { width: auto; height: auto; max-width: 1000px; max-height: 860px; }
+.walk .side-note { width: 600px; }
+.walk .side-note h2 { font-size: 64px; }
+.ring-key { display: flex; gap: 14px; align-items: center; font-size: 26px; color: var(--muted); }
+.ring-key i { width: 34px; height: 24px; border-radius: 7px; border: 3px solid #E39B2E; box-shadow: 0 0 0 6px rgba(227,155,46,.22); flex: none; }
+.tick { display: flex; gap: 16px; align-items: center; font-size: 32px; }
+.tick::before { content: "✓"; width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; flex: none; }
 
-/* File tree */
-.tree { display: grid; gap: 10px; font: 20px var(--mono); }
-.file { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; }
-.file b { color: var(--accent); font-weight: 600; }
-.file span { font: 19px var(--body); color: var(--muted); }
+/* File list */
+.tree { display: grid; gap: 14px; width: 760px; }
+.file { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 24px; text-align: left; }
+.file b { font: 600 27px var(--mono); color: var(--accent); }
+.file span { font-size: 25px; color: var(--muted); }
+.tree.wide { width: 1240px; }
+.tree.wide .file { grid-template-columns: 440px 1fr; gap: 24px; align-items: center; }
+
+/* Works for any project */
+.tiles { display: grid; grid-template-columns: repeat(3, 480px); gap: 20px; }
+.tile { display: flex; gap: 20px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; text-align: left; }
+.tile svg { width: 56px; height: 56px; flex: none; padding: 12px; border-radius: 14px; background: var(--accent-soft); stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tile div { display: grid; gap: 2px; }
+.tile b { font: 700 28px/1.15 var(--display); }
+.tile span { font-size: 23px; line-height: 1.3; color: var(--muted); }
 
 /* Team diagram */
-.team { display: grid; gap: 16px; justify-items: center; }
-.node { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 20px; text-align: center; display: grid; gap: 2px; min-width: 200px; }
-.node b { font: 700 21px var(--display); }
-.node span { font-size: 16px; color: var(--muted); }
+.team { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.node { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 30px; display: grid; gap: 4px; min-width: 280px; }
+.node b { font: 700 30px var(--display); }
+.node span { font-size: 23px; color: var(--muted); }
 .node.lead { background: var(--accent); border-color: var(--accent); color: #fff; }
 .node.lead span { color: #DCEEE6; }
-.node.dash { border-style: dashed; }
-.nodes { display: flex; gap: 14px; }
-.arrow { color: var(--muted); font-size: 26px; line-height: 1; }
+.node.dash { border-style: dashed; border-width: 2px; }
+.nodes { display: flex; gap: 20px; justify-content: center; }
+.arrow { color: var(--muted); font-size: 36px; line-height: 1; }
 
 /* Loop */
-.loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 1100px; }
-.loop div { border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 16px 18px; display: grid; gap: 4px; }
-.loop small { font: 600 13px var(--mono); letter-spacing: .08em; opacity: .7; }
-.loop b { font: 700 24px var(--display); }
-.loop span { font-size: 15px; line-height: 1.35; opacity: .85; }
+.loop { display: grid; grid-template-columns: repeat(4, 360px); gap: 20px; }
+.loop div { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 22px 26px; display: grid; gap: 6px; text-align: left; }
+.loop small { font: 600 22px var(--mono); letter-spacing: .08em; opacity: .75; }
+.loop b { font: 700 36px var(--display); }
+.loop span { font-size: 24px; line-height: 1.3; opacity: .9; }
 
 /* Gate */
-.issue { width: 620px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; display: grid; gap: 14px; position: relative; box-shadow: 0 20px 50px -30px rgb(0 0 0 / .35); }
-.issue h3 { margin: 0; font: 700 23px/1.3 var(--display); }
-.issue ol { margin: 0; padding-left: 1.3em; font-size: 18px; display: grid; gap: 4px; color: var(--muted); }
-.tries { display: flex; gap: 12px; }
-.stamp { font: 600 16px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border: 2px solid currentColor; border-radius: 6px; display: inline-block; }
+.issue { width: 820px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 36px 40px 44px; display: grid; gap: 20px; position: relative; text-align: left; box-shadow: 0 30px 70px -36px rgb(0 0 0 / .35); }
+.issue h3 { margin: 0; font: 700 34px/1.25 var(--display); text-wrap: balance; }
+.issue ol { margin: 0; padding-left: 1.3em; font-size: 27px; line-height: 1.4; display: grid; gap: 6px; color: var(--muted); }
+.tries { display: flex; gap: 16px; }
+.stamp { font: 600 23px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 16px; border: 2px solid currentColor; border-radius: 8px; display: inline-block; }
 .s-pass { color: var(--accent); background: var(--accent-soft); }
-.s-fail { color: var(--fail); background: var(--fail-soft); }
-.s-warn { color: var(--warn); background: var(--warn-soft); }
-.big { position: absolute; right: -28px; bottom: -26px; font-size: 22px; padding: 10px 16px; background: var(--surface); color: var(--accent); border-width: 3px; }
+.big { position: absolute; right: 28px; bottom: -30px; font-size: 30px; padding: 12px 20px; background: var(--surface); color: var(--accent); border-width: 3px; }
 
 /* Report */
-.report { width: 640px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px -30px rgb(0 0 0 / .35); }
-.report header { padding: 18px 24px; border-bottom: 1px solid var(--line); font: 700 22px var(--display); }
-.report li { list-style: none; display: flex; justify-content: space-between; padding: 12px 24px; font-size: 20px; border-bottom: 1px solid var(--line); }
-.report li span:last-child { font-family: var(--mono); color: var(--muted); }
+.report { width: 820px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; text-align: left; box-shadow: 0 30px 70px -36px rgb(0 0 0 / .35); }
+.report header { padding: 24px 32px; border-bottom: 1px solid var(--line); font: 700 32px var(--display); }
 .report ul { margin: 0; padding: 0; }
+.report li { list-style: none; display: flex; justify-content: space-between; gap: 24px; padding: 18px 32px; font-size: 28px; border-bottom: 1px solid var(--line); }
+.report li:last-child { border-bottom: 0; }
+.report li span:last-child { font-family: var(--mono); color: var(--muted); white-space: nowrap; }
 
 /* Closing */
-.cmds { display: flex; gap: 16px; flex-wrap: wrap; }
-.cmd { font: 22px var(--mono); background: var(--ink); color: #E6ECE8; padding: 14px 20px; border-radius: 12px; }
-.cmd i { font-style: normal; color: #5DC59E; margin-right: 10px; }
-
-.progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--accent); width: 0; animation: grow calc(var(--total) * 1s) linear 0s both; }
-@keyframes grow { to { width: 100%; } }
-.brand { position: absolute; left: 88px; bottom: 26px; font: 600 13px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.cmds { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1600px; }
+.cmd { font: 30px var(--mono); background: var(--ink); color: #E6ECE8; padding: 18px 28px; border-radius: 16px; white-space: nowrap; }
+.cmd i { font-style: normal; color: #5DC59E; margin-right: 14px; }
+.cmds.col { flex-direction: column; align-items: flex-start; }
 </style>
 </head>
-<body style="--total: 78">
+<body style="--total: 113">
 
-<section class="scene" style="--s: 0; --len: 6">
+<section class="scene" style="--s: 0; --len: 7">
   <div class="title-mark a" style="--o: .2"><svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <h1 class="a" style="--o: .5">QA Agent Kit</h1>
-  <p class="say a" style="--o: 1.1">How we test any project with a team of AI testers. <b>In about a minute.</b></p>
+  <span class="step a" style="--o: .4">QA Agent Kit</span>
+  <h1 class="a" style="--o: .6">Test any project with a team of AI testers.</h1>
+  <p class="say a" style="--o: 1.3">Here is how it works, in about two minutes.</p>
 </section>
 
-<section class="scene" style="--s: 6; --len: 9">
+<section class="scene" style="--s: 7; --len: 9">
   <span class="step a" style="--o: .2">Step 1 · Get the kit</span>
   <h2 class="a" style="--o: .4">Clone it, install it, open the setup screen.</h2>
   <div class="term a" style="--o: .9">
     <div class="dots"><i></i><i></i><i></i></div>
-    <span class="line" style="--o: 1.4; --n: 44; --t: 1.6; animation-timing-function: steps(44)"><span class="p">$</span> git clone …/qa-agent-kit my-project-qa</span>
-    <span class="line" style="--o: 3.3; --n: 49; --t: 1.6; animation-timing-function: steps(49)"><span class="p">$</span> npm install && npx playwright install chromium</span>
-    <span class="line" style="--o: 5.2; --n: 15; --t: .8; animation-timing-function: steps(15)"><span class="p">$</span> npm run setup</span>
-    <span class="line out" style="--o: 6.3; --n: 52; --t: .3; animation-timing-function: steps(52)">Open this address in your browser: 127.0.0.1:4321</span>
+    <span class="line a" style="--o: 1.5"><span class="p">$</span> git clone https://github.com/Alirizvi987/qa-agent-kit</span>
+    <span class="line a" style="--o: 2.2"><span class="p">$</span> cd qa-agent-kit</span>
+    <span class="line a" style="--o: 2.9"><span class="p">$</span> npm install && npx playwright install chromium</span>
+    <span class="line a" style="--o: 3.6"><span class="p">$</span> npm run setup</span>
+    <span class="line out a" style="--o: 4.3">Open this address in your browser: 127.0.0.1:4321</span>
   </div>
 </section>
 
-<section class="scene" style="--s: 15; --len: 10">
+<section class="scene walk" style="--s: 16; --len: 4.5">
   <div class="row2">
-    <div class="browser a" style="--o: .3; width: 700px">
-      <div class="bar"><i></i><i></i><i></i><span>127.0.0.1:4321</span></div>
-      <div class="view" style="height: 430px"><img src="setup-screen.png" alt=""></div>
-    </div>
+    <img class="shot fit a" style="--o: .2" src="walk-1-project.png" alt="">
     <div class="side-note">
-      <span class="step a" style="--o: .2">Step 2 · Describe your project</span>
-      <h2 class="a" style="--o: .4; font-size: 42px">Fill in a short form.</h2>
-      <div class="tick a" style="--o: 1.6">Websites and environments</div>
-      <div class="tick a" style="--o: 2.4">Who uses it: roles</div>
-      <div class="tick a" style="--o: 3.2">Every account state</div>
-      <div class="tick a" style="--o: 4.0">Designs, spec, mailbox</div>
-      <div class="tick a" style="--o: 4.8">No passwords</div>
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 1 of 7</span>
+      <h2 class="a" style="--o: .3">Name the project. Say what it does.</h2>
+      <p class="say a" style="--o: .6">Two or three plain sentences. The agents read this first.</p>
+      <span class="ring-key a" style="--o: 1.0"><i></i>The orange ring shows what to fill in</span>
     </div>
   </div>
 </section>
 
-<section class="scene" style="--s: 25; --len: 9">
+<section class="scene walk" style="--s: 20.5; --len: 4.5">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-2-environments.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 2 of 7</span>
+      <h2 class="a" style="--o: .3">List where it runs. Tick the live one.</h2>
+      <p class="say a" style="--o: .6">Agents only ever look at the live product. They never change it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene walk" style="--s: 25; --len: 5">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-3-portals.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 3 of 7</span>
+      <h2 class="a" style="--o: .3">Add each website, admin panel or API.</h2>
+      <p class="say a" style="--o: .6">Pick what it is and how people sign in.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene walk" style="--s: 30; --len: 4.5">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-4-roles.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 4 of 7</span>
+      <h2 class="a" style="--o: .3">Add every type of user.</h2>
+      <p class="say a" style="--o: .6">Each role gets its own AI tester. Tick which one is staff.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene walk" style="--s: 34.5; --len: 4">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-4b-states.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 5 of 7</span>
+      <h2 class="a" style="--o: .3">Add every state an account can be in.</h2>
+      <p class="say a" style="--o: .6">Type one and press Add. Every change is checked against all of them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene walk" style="--s: 38.5; --len: 4.5">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-5-mobile.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 6 of 7</span>
+      <h2 class="a" style="--o: .3">Got an app? Tick it.</h2>
+      <p class="say a" style="--o: .6">Android package or iPhone bundle id. No app? Skip this step.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene walk" style="--s: 43; --len: 5.5">
+  <div class="row2">
+    <img class="shot fit a" style="--o: .2" src="walk-6-ready.png" alt="">
+    <div class="side-note">
+      <span class="step a" style="--o: .1">Step 2 · Fill in the form · 7 of 7</span>
+      <h2 class="a" style="--o: .3">Press Create. Your workspace is ready.</h2>
+      <p class="say a" style="--o: .6">Rules, agents and checklists, written for your product.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene" style="--s: 48.5; --len: 8.5">
   <span class="step a" style="--o: .2">Step 3 · The kit writes your workspace</span>
   <h2 class="a" style="--o: .4">Rules and agents, made for your product.</h2>
-  <div class="tree">
-    <div class="file a" style="--o: 1.4"><b>AGENTS.md</b><span>House rules everyone reads first</span></div>
-    <div class="file a" style="--o: 2.2"><b>docs/qa/handoff.md</b><span>Where testing stands today</span></div>
-    <div class="file a" style="--o: 3.0"><b>docs/qa/rules/</b><span>PR testing, emails, retests, issues, questions</span></div>
-    <div class="file a" style="--o: 3.8"><b>.claude/agents/</b><span>One AI tester per role, plus reporter and re-checker</span></div>
-    <div class="file a" style="--o: 4.6"><b>docs/qa/impact-grid.md</b><span>Every role × every account state</span></div>
+  <div class="tree wide">
+    <div class="file a" style="--o: 1.2"><b>AGENTS.md</b><span>House rules everyone reads first</span></div>
+    <div class="file a" style="--o: 1.7"><b>docs/qa/handoff.md</b><span>Where testing stands today</span></div>
+    <div class="file a" style="--o: 2.2"><b>docs/qa/rules/</b><span>PR tests, emails, retests, issues</span></div>
+    <div class="file a" style="--o: 2.7"><b>.claude/agents/</b><span>One AI tester per role, plus helpers</span></div>
+    <div class="file a" style="--o: 3.2"><b>docs/qa/impact-grid.md</b><span>Every role × every account state</span></div>
   </div>
 </section>
 
-<section class="scene" style="--s: 34; --len: 11">
+<section class="scene" style="--s: 57; --len: 10">
+  <span class="step a" style="--o: .2">Works for any project</span>
+  <h2 class="a" style="--o: .4">Tick what your product has. The kit fits around it.</h2>
+  <div class="tiles">
+    <div class="tile a" style="--o: 1.2"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><div><b>Websites & portals</b><span>Every page, every width</span></div></div>
+    <div class="tile a" style="--o: 1.5"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="7" cy="18" r="2" fill="#fff"/></svg><div><b>Admin panels</b><span>Approvals and settings</span></div></div>
+    <div class="tile a" style="--o: 1.8"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 18.5h4"/></svg><div><b>Android app</b><span>Real phone + emulators</span></div></div>
+    <div class="tile a" style="--o: 2.1"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3.5"/><path d="M10.5 4.8h3"/></svg><div><b>iPhone app</b><span>Simulator on a Mac</span></div></div>
+    <div class="tile a" style="--o: 2.4"><svg viewBox="0 0 24 24"><path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/></svg><div><b>APIs only</b><span>No screens? Test the calls</span></div></div>
+    <div class="tile a" style="--o: 2.7"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg><div><b>Any sign-in</b><span>Password, email code, SSO, none</span></div></div>
+    <div class="tile a" style="--o: 3.0"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><div><b>Emails</b><span>Right email, right link</span></div></div>
+    <div class="tile a" style="--o: 3.3"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><div><b>Payments</b><span>Any provider, test mode</span></div></div>
+    <div class="tile a" style="--o: 3.6"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><div><b>Languages & browsers</b><span>Each one you list</span></div></div>
+  </div>
+</section>
+
+<section class="scene" style="--s: 67; --len: 10">
   <span class="step a" style="--o: .2">Step 4 · Your AI test team</span>
   <h2 class="a" style="--o: .4">You lead. The agents click, collect proof and draft.</h2>
   <div class="team">
-    <div class="node lead a" style="--o: 1.4"><b>You + Claude Code</b><span>plans, reads the mailbox, approves, merges</span></div>
+    <div class="node lead a" style="--o: 1.4"><b>You + Claude Code</b><span>plans, reads the mailbox, approves</span></div>
     <div class="arrow a" style="--o: 2.0">↓</div>
     <div class="nodes">
       <div class="node a" style="--o: 2.4"><b>Customer</b><span>own test users</span></div>
       <div class="node a" style="--o: 2.7"><b>Business</b><span>own test users</span></div>
       <div class="node dash a" style="--o: 3.0"><b>Admin</b><span>one at a time</span></div>
-      <div class="node dash a" style="--o: 3.3"><b>Mobile</b><span>real phone + emulators</span></div>
+      <div class="node dash a" style="--o: 3.3"><b>Mobile</b><span>phone + emulators</span></div>
     </div>
-    <div class="arrow a" style="--o: 4.2">↓</div>
+    <div class="arrow a" style="--o: 4.0">↓</div>
     <div class="nodes">
-      <div class="node a" style="--o: 4.6"><b>Reporter</b><span>drafts clear issues</span></div>
-      <div class="node a" style="--o: 5.2"><b>Re-checker</b><span>repeats each one, twice</span></div>
+      <div class="node a" style="--o: 4.4"><b>Reporter</b><span>drafts clear issues</span></div>
+      <div class="node a" style="--o: 4.8"><b>Re-checker</b><span>repeats each one, twice</span></div>
     </div>
   </div>
 </section>
 
-<section class="scene" style="--s: 45; --len: 10">
+<section class="scene" style="--s: 77; --len: 10">
   <span class="step a" style="--o: .2">Step 5 · The testing loop</span>
   <h2 class="a" style="--o: .4">The same eight steps, every change.</h2>
   <div class="loop">
-    <div class="a lit" style="--o: 1.2"><small>01</small><b>Understand</b><span>change, spec, design</span></div>
-    <div class="a lit" style="--o: 2.0"><small>02</small><b>Plan</b><span>use cases, edge cases</span></div>
-    <div class="a lit" style="--o: 2.8"><small>03</small><b>Prepare</b><span>test users in the right state</span></div>
-    <div class="a lit" style="--o: 3.6"><small>04</small><b>Test</b><span>web, admin, app, emails</span></div>
-    <div class="a lit" style="--o: 4.4"><small>05</small><b>Compare</b><span>against the design</span></div>
-    <div class="a lit" style="--o: 5.2"><small>06</small><b>Re-check</b><span>from the screen, twice</span></div>
-    <div class="a lit" style="--o: 6.0"><small>07</small><b>Report</b><span>steps anyone can follow</span></div>
-    <div class="a lit" style="--o: 6.8"><small>08</small><b>Retest</b><span>prove the fix</span></div>
+    <div class="lit" style="--o: 1.2"><small>01</small><b>Understand</b><span>change, spec, design</span></div>
+    <div class="lit" style="--o: 1.8"><small>02</small><b>Plan</b><span>use cases, edge cases</span></div>
+    <div class="lit" style="--o: 2.4"><small>03</small><b>Prepare</b><span>test users, right state</span></div>
+    <div class="lit" style="--o: 3.0"><small>04</small><b>Test</b><span>web, admin, app, emails</span></div>
+    <div class="lit" style="--o: 3.6"><small>05</small><b>Compare</b><span>against the design</span></div>
+    <div class="lit" style="--o: 4.2"><small>06</small><b>Re-check</b><span>from the screen, twice</span></div>
+    <div class="lit" style="--o: 4.8"><small>07</small><b>Report</b><span>steps anyone can follow</span></div>
+    <div class="lit" style="--o: 5.4"><small>08</small><b>Retest</b><span>prove the fix</span></div>
   </div>
 </section>
 
-<section class="scene" style="--s: 55; --len: 8">
+<section class="scene" style="--s: 87; --len: 9">
   <div class="row2">
-    <div class="side-note" style="max-width: 440px">
+    <div class="side-note" style="max-width: 640px">
       <span class="step a" style="--o: .2">The quality gate</span>
-      <h2 class="a" style="--o: .4; font-size: 44px">Seen twice from the screen, or it's dropped.</h2>
-      <p class="say a" style="--o: 1.0; font-size: 21px">A fresh agent repeats every issue with clicks and real emails only. No shortcuts.</p>
+      <h2 class="a" style="--o: .4">Seen twice from the screen, or it's dropped.</h2>
+      <p class="say a" style="--o: 1.0">A fresh agent repeats every issue with clicks and real emails only.</p>
     </div>
     <div class="issue a" style="--o: .8">
       <h3>"Plan updated" email button opens the sign-in page</h3>
-      <ol><li>Sign in as an approved business</li><li>Choose Gold and pay with the test card</li><li>Open the email, click "View plan"</li></ol>
-      <div class="tries"><span class="stamp s-pass pop" style="--o: 2.6">Try 1 ✓</span><span class="stamp s-pass pop" style="--o: 3.6">Try 2 ✓</span></div>
-      <span class="stamp big pop" style="--o: 4.8">Re-checked ×2</span>
+      <ol><li>Sign in as an approved business</li><li>Choose Gold, pay with the test card</li><li>Open the email, click "View plan"</li></ol>
+      <div class="tries"><span class="stamp s-pass pop" style="--o: 2.4">Try 1 ✓</span><span class="stamp s-pass pop" style="--o: 3.2">Try 2 ✓</span></div>
+      <span class="stamp big pop" style="--o: 4.2">Re-checked ×2</span>
     </div>
   </div>
 </section>
 
-<section class="scene" style="--s: 63; --len: 8">
+<section class="scene" style="--s: 96; --len: 9">
   <div class="row2">
-    <div class="side-note" style="max-width: 440px">
+    <div class="side-note" style="max-width: 640px">
       <span class="step a" style="--o: .2">Step 6 · The report</span>
-      <h2 class="a" style="--o: .4; font-size: 44px">One page developers can act on.</h2>
-      <p class="say a" style="--o: 1.0; font-size: 21px">Grouped, with proof, and every use case marked <b>Pass</b>, <b>Fail</b> or <b>Not covered</b>.</p>
+      <h2 class="a" style="--o: .4">One page developers can act on.</h2>
+      <p class="say a" style="--o: 1.0">Grouped, with proof. Every use case marked <b>Pass</b>, <b>Fail</b> or <b>Not covered</b>.</p>
     </div>
     <div class="report a" style="--o: .8">
       <header>Pull request 123 · test report</header>
@@ -229,34 +315,34 @@ h2 { font: 800 50px/1.06 var(--display); letter-spacing: -.02em; margin: 0; max-
         <li class="a" style="--o: 2.0"><span>Already there before</span><span>2</span></li>
         <li class="a" style="--o: 2.4"><span>Design differences</span><span>4</span></li>
         <li class="a" style="--o: 2.8"><span>Questions for the product owner</span><span>1</span></li>
-        <li class="a" style="--o: 3.2"><span>Use cases: pass · fail · not covered</span><span>41 · 3 · 2</span></li>
+        <li class="a" style="--o: 3.2"><span>Pass · fail · not covered</span><span>41 · 3 · 2</span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<section class="scene last" style="--s: 71; --len: 7">
+<section class="scene last" style="--s: 105; --len: 8">
   <span class="step a" style="--o: .2">Your turn</span>
-  <h1 class="a" style="--o: .4; font-size: 64px">Clone. Describe. Start testing.</h1>
-  <div class="cmds a" style="--o: 1.2">
-    <span class="cmd"><i>1</i>git clone</span>
+  <h1 class="a" style="--o: .4; font-size: 96px; max-width: none">Clone. Describe. Start testing.</h1>
+  <div class="cmds col a" style="--o: 1.2">
+    <span class="cmd"><i>1</i>git clone https://github.com/Alirizvi987/qa-agent-kit</span>
     <span class="cmd"><i>2</i>npm run setup</span>
     <span class="cmd"><i>3</i>"Read AGENTS.md and start FIRST-WEEK.md"</span>
   </div>
-  <p class="say a" style="--o: 2.2">Full guide in the README. Questions? Ask Ali Rizvi, QA.</p>
+  <p class="say a" style="--o: 2.0">Full guide in the README. Questions? Ask Ali Rizvi, QA.</p>
 </section>
-
-<div class="brand">QA Agent Kit</div>
-<div class="progress"></div>
 
 <script>
 // Pause everything; the renderer moves time with window.seek(seconds).
-document.fonts.ready.then(() => {
-  document.getAnimations().forEach(a => a.pause());
-  window.seek = t => document.getAnimations().forEach(a => { a.currentTime = t * 1000; });
-  window.TOTAL = Number(getComputedStyle(document.body).getPropertyValue('--total'));
-  window.ready = true;
-});
+const fonts = ['800 72px "Bricolage Grotesque"', '700 30px "Bricolage Grotesque"', '400 30px "Instrument Sans"', '700 30px "Instrument Sans"', '400 30px "JetBrains Mono"', '600 24px "JetBrains Mono"'];
+Promise.all([...fonts.map(f => document.fonts.load(f)), ...[...document.images].map(i => i.decode().catch(() => {}))])
+  .then(() => document.fonts.ready)
+  .then(() => {
+    document.getAnimations().forEach(a => a.pause());
+    window.seek = t => document.getAnimations().forEach(a => { a.currentTime = t * 1000; });
+    window.TOTAL = Number(getComputedStyle(document.body).getPropertyValue('--total'));
+    window.ready = true;
+  });
 </script>
 </body>
 </html>

@@ -53,7 +53,7 @@ legend { display: contents; }
 .num { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--accent); color: var(--accent); display: grid; place-items: center; font: 800 1rem var(--display); }
 .step-head p { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; }
 .fields { display: grid; gap: 14px; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .fields.two { grid-template-columns: 1fr 1fr; } .fields.three { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 640px) { .fields.two { grid-template-columns: 1fr 1fr; } .fields.three { grid-template-columns: repeat(3, 1fr); } .fields.env { grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr) auto; align-items: end; } }
 label.f { display: grid; gap: 5px; font-size: .875rem; font-weight: 600; min-width: 0; }
 label.f small { font-weight: 400; color: var(--muted); }
 input[type=text], input[type=url], input[type=email], input[type=number], select, textarea {
@@ -94,7 +94,7 @@ aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
 .cmd { display: flex; gap: 8px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 9px; padding: 9px 12px; font: .8125rem var(--mono); overflow-x: auto; }
 .cmd span { flex: 1; white-space: nowrap; }
 .cmd button { background: transparent; color: var(--paper); border-color: rgb(255 255 255 / .3); padding: 4px 9px; font-size: .75rem; }
-.files { max-height: 420px; overflow: auto; font: .75rem/1.7 var(--mono); color: var(--muted); margin: 0; padding: 0; list-style: none; }
+.files { overflow: visible; font: .75rem/1.7 var(--mono); color: var(--muted); margin: 0; padding: 0; list-style: none; }
 </style>
 </head>
 <body>
@@ -371,7 +371,8 @@ function renderList(name) {
       if (type === 'select') return `<label class="f" for="${id}">${label}<select ${attrs}>${ph.map(([v, t]) => `<option value="${v}" ${v === (item[key] || ph[0][0]) ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
       return `<label class="f" for="${id}">${label}<input type="${type}" ${attrs} value="${esc(item[key])}" placeholder="${esc(ph)}"></label>`;
     }).join('');
-    return `<div class="row"><div class="fields ${cfg.fields.length > 3 ? 'two' : 'three'}">${fields}</div><button type="button" class="remove" data-remove="${name}" data-i="${i}" aria-label="Remove">×</button></div>`;
+    const layout = name === 'environments' ? 'env' : cfg.fields.length > 3 ? 'two' : 'three';
+    return `<div class="row"><div class="fields ${layout}">${fields}</div><button type="button" class="remove" data-remove="${name}" data-i="${i}" aria-label="Remove">×</button></div>`;
   }).join('') || `<p style="margin:0;color:var(--muted);font-size:.9375rem">None yet.</p>`;
 }
 
