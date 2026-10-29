@@ -1,0 +1,87 @@
+# How a pull request is tested
+
+A pull request (PR) is a developer's package of changes waiting to be released. Use this file every
+time PRs are handed over for testing on {{main_env}}.
+
+## 1. What's in scope
+
+1. **Every screen PR on the list**, tested through the screens the way a user sees them.
+2. **The server PRs behind each screen PR**, judged by what the screens show: prices, charges,
+   saves, limits, messages, admin settings. Server behaviour with no screen goes in a separate
+   "server-only" list, not in the issues.
+3. **Admin changes** the PR causes: screens, dialogs and real saves. Put shared settings back after.
+4. **Impact**: every account state the change can reach, for every role. Read the code changes to
+   find shared parts (components, emails, server code) that could break other places.
+5. **Start with a coverage grid** (`runs/<date>-<name>/COVERAGE.md`): PR × server PRs × roles ×
+   states × design frames × gaps. Create the run folder with `npm run new-run -- <name>`.
+
+Account states for this project: {{states}}.
+Roles: {{#each roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}.
+
+## 2. Design check, frame by frame
+
+- Check only the **newest** designs, and only the frames for the screens and states **this PR** builds or changes.
+- Only the portal the PR is for. Other pages the PR touches are compared with the previous build for side effects.
+- For each frame: text, order, states (default, hover, disabled, empty, error), sizes, spacing, fonts,
+  colours, corners, shadows, icons.
+- **Read values, don't guess them.** Design values come from the design file (Figma connector).
+  Live values come from the page (element size and computed style). Never measure screenshots.
+- Re-list the design frames every run. Frame ids change.
+- Differences of {{rules.min_design_diff_px}}px or less, or near-identical shades, stay out.
+- Write results to `DESIGN.md` in the run folder: frame | screen | match? | values | proof.
+- Problems that existed before the PR are reported in their own "already there before" group.
+
+Design files:
+{{#each sources.designs}}
+- {{name}}: {{url}}
+{{/each}}
+
+## 3. Emails
+
+Every action that can send mail is checked. See `EMAIL-CHECKS.md`. Keep a log per lane in `EMAILS.md`.
+
+## 4. Test accounts, payments and settings
+
+- Test accounts may be approved and charged on test environments{{#if has_payments}} ({{payments.provider}} test mode, card {{payments.test_card}}){{/if}}. Record every charge against the expected amount.
+- Admin switches may be used to reach a state. **Put every shared value back** and write it in `RESTORE-LOG.md`.
+- Changing admin permissions on real staff accounts always needs the lead's OK first.
+{{#if production}}
+- Never touch `{{production.name}}` beyond read-only smoke checks.
+{{/if}}
+
+## 5. Tested from the screen
+
+Every claim is judged by what the user sees, in a fresh headless sign-in. Two exceptions, always labelled:
+
+1. **Instrumented checks.** States the screens can't reach on a shared environment (slow server,
+   loading skeletons, a server error, a missing field) may be forced with Playwright `route`. Label the
+   result `instrumented`. It can confirm a **pass** only. It becomes an issue only if the same failure
+   also happens from the screens alone, {{rules.recheck_times}} times.
+2. **Setup through admin tools or the API.** Fine for reaching a state for a pass. If anything fails in
+   that state, set it up again through the real screens before it goes to the re-checker.
+
+## 6. The use-case gate
+
+Before a PR report is shared, build `USE-CASES.md` in the run folder from the PR itself:
+
+- every user story, acceptance criterion and requirement in the PR and its spec
+- each role, including read-only ones; each account state; each portal the PR touches
+- each email the actions send
+- edge cases: double click, two tabs saving at once, empty / too long / wrong input, slow or no
+  network, links and redirects, opening a page by address without permission
+
+Each row gets one status: **Pass** · **Fail → issue id** · **Not covered + reason**.
+A blank row means the run isn't finished.
+
+## 7. The report
+
+Groups, in this order:
+
+1. Caused by this PR
+2. Already there before, on the pages it touches
+3. Design differences
+4. Questions for the product owner (only after `PO-QUESTION-RULE.md`)
+5. Server-only notes
+6. The use-case checklist with the "Not covered" list, the coverage grid and the restore log
+
+Format: {{rules.report}}. Every issue follows `TICKET-RULES.md` and has passed the re-check.

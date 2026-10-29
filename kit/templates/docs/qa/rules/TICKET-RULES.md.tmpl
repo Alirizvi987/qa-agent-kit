@@ -1,0 +1,51 @@
+# How a finding becomes an issue
+
+Developers and clients read these, so they are written in a plain, calm QA voice. No run notes,
+no agent names, no internal account ids, no blame.
+
+## Before writing
+
+The finding has passed every gate:
+
+1. The spec agrees it's wrong (`PRD-FIRST-RULE.md`), with the section number
+2. Proof from this run, and every attachment opens
+3. Reproduced from the screens only, {{rules.recheck_times}} times, by someone other than the finder
+4. Not an accepted behaviour or a known issue (search the tracker and `handoff.md` first)
+5. Bigger than {{rules.min_design_diff_px}}px or a near-identical shade
+
+## Severity
+
+{{#each rules.severity}}
+- **{{this}}**
+{{/each}}
+
+Use this meaning unless the project defines its own:
+- **P1**: blocks people or money (can't sign up, wrong charge, data lost, security)
+- **P2**: hurts people, but there's a way around it (wrong email link, a state that shows the wrong thing)
+- **P3**: polish (spacing, copy, small visual differences)
+
+## The format
+
+```
+Title: what is wrong, where (one line, no "bug:" prefix)
+
+Where: <portal or app> · <screen> · <environment> · <screen width or device>
+Who: <role and account state>, e.g. "an approved Business"
+
+Steps
+1. …
+2. …
+3. …
+
+Expected: … (quote the spec section or design frame)
+Actual: …
+Seen: N of N tries, from the screens only
+Proof: screenshots / recording / email
+```
+
+## Rules
+
+- Steps are clicks anyone can follow, starting from a sign-in. No API calls in steps.
+- One problem per issue. Several screens with the same cause can share one issue with a list.
+- Say "Expected" from a source, never from opinion.
+- Agents write drafts in the run folder. The lead files them{{#if sources.tracker}} in {{sources.tracker}}{{/if}}.

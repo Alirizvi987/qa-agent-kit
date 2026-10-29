@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+
+# Test proof stays on your machine (screenshots can show personal data).
+# Share reports, not raw runs. Remove this line if your team wants runs in git.
+runs/
+
+# Secrets never belong in the repo. They live in ~/.qa-secrets/<project>.env
+*.env
+.env*
+*.pem
+*.key

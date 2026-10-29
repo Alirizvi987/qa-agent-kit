@@ -1,0 +1,34 @@
+# Lessons learned
+
+Short notes about things that surprised us, so nobody repeats them. Claude reads this file at the
+start of every session (it is imported by `CLAUDE.md`). Keep each lesson to a few lines.
+
+Format:
+
+```
+## <one-line lesson>
+_<date> · <who>_
+What happened. **So:** what we do now.
+```
+
+---
+
+## A broken test user looks exactly like a login bug
+_starter lesson_
+Stale passwords have been reported as sign-in defects. **So:** health-check test users before every run, and never report a 401 without that check.
+
+## Screenshots lie about sizes
+_starter lesson_
+Measuring pixels on a screenshot undercounted sizes by about 3px and produced a wrong issue. **So:** read sizes from the design file and the live page.
+
+## Design frame ids change
+_starter lesson_
+A screen was called "missing from the design" because an old frame id no longer worked. **So:** re-list the design frames every run.
+
+## A timeout is not an outage
+_starter lesson_
+Every site timing out usually means the VPN or network. A 5xx error is the server. **So:** tell them apart before reporting anything.
+
+## Bulk logins send bulk emails
+_starter lesson_
+Signing in dozens of test users can flood the inbox with sign-in notices. **So:** reuse logged-in sessions and warn the team before bulk runs.

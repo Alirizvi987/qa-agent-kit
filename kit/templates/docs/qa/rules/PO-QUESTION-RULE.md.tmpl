@@ -1,0 +1,31 @@
+# Think before asking the product owner
+
+A question to the product owner (PO) costs their time and slows the release. Most questions can be
+answered from the sources we already have.
+
+## Before you ask
+
+Check, in this order:
+
+1. The PR description and its spec documents
+2. The product spec (PRD), including "out of scope"
+3. Saved rulings: `docs/qa/handoff.md` and `docs/qa/LESSONS.md`
+4. The design
+5. What a real user would expect, and what happens to them if we guess wrong
+
+## A question survives only when
+
+- the sources **disagree** with each other, or
+- the sources are **silent** and a wrong guess would hurt users or money.
+
+## How to ask
+
+Every question says:
+
+- **What I saw** (one or two lines, with the screen)
+- **What I checked** (which sources, which sections)
+- **My suggested answer** and why
+- **What happens if we do nothing**
+
+Keep a per-run triage table in `PO-TRIAGE.md`: question | sources checked | answered myself? | asked?
+When the PO answers, save the ruling in `docs/qa/handoff.md` under "Accepted behaviours" so nobody asks or reports it again.

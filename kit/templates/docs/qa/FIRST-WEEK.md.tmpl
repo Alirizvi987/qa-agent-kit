@@ -1,0 +1,19 @@
+# First week on {{project.name}}
+
+Learn what "right" looks like before testing anything. Tick each item when it's done.
+You can hand most of these to Claude Code: say _"Do step 3 of docs/qa/FIRST-WEEK.md"_.
+
+- [ ] **1. Read the spec end to end**, including "out of scope". Note every role, state and rule in `test-plan.md`.
+- [ ] **2. Map every design screen** (Figma connector): web, mobile, admin, emails. List frames per screen in `test-plan.md`.
+- [ ] **3. Fill in the impact grid** (`impact-grid.md`): which roles can be in which states.
+- [ ] **4. Check the tools work:**
+  - [ ] `npm run smoke` passes for every portal ({{#each portals}}{{name}}{{#unless @last}}, {{/unless}}{{/each}})
+  - [ ] the Gmail / mailbox connector can read {{mailbox.address}}
+  - [ ] the Figma connector can open the design files
+{{#if has_mobile}}
+  - [ ] `adb devices` shows the phone; emulators made with `scripts/mobile/emulator-setup.sh`
+{{/if}}
+- [ ] **5. Create test users**: one lane per role ({{#each roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}), following `agents/fixture-recipe.md`. Fill in "Getting a user into a state".
+- [ ] **6. Write the flow backlog** (`flow-backlog.md`): every flow, in the order they matter.
+- [ ] **7. Run the first flow end to end** at smoke depth for every role. Save lessons in `LESSONS.md`.
+- [ ] **8. Update `handoff.md`.** From now on, keep it current at the end of every session.

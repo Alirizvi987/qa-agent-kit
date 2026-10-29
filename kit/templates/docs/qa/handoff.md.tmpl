@@ -1,0 +1,52 @@
+# {{project.name}} QA handoff
+
+One page that says where testing stands. **Keep it short and current.** Anyone (person or agent)
+should be able to read it in two minutes and continue the work.
+
+_Last updated: {{today}} by {{project.owner}}_
+
+## Today
+
+- Current focus: _e.g. "Testing PR 123 (new plans) with server PR 45 on {{main_env}}"_
+- Builds under test: _web commit / app version_
+
+## Done
+
+| Area | Status | Proof / report |
+|---|---|---|
+| _e.g. Sign-up, all roles_ | _Coverage complete, 2 open issues_ | _link_ |
+
+## In progress
+
+- _…_
+
+## Next
+
+1. Work through `docs/qa/FIRST-WEEK.md` if it isn't finished.
+2. Then the top of `docs/qa/flow-backlog.md`.
+
+## Known issues (don't report again)
+
+| Issue | Where | Tracker id |
+|---|---|---|
+
+## Accepted behaviours (decisions, not bugs)
+
+Rulings from the product owner or the team. Never report these.
+
+| Behaviour | Decided by | Date |
+|---|---|---|
+
+## Test users
+
+Ids and states only (no passwords): see `docs/qa/test-users.md`. Secrets: `{{secrets_file}}`.
+
+## Tool boundaries
+
+- Websites and admin panel: headless Playwright
+{{#if has_mobile}}
+- Mobile: ADB + UIAutomator on the real phone and emulators
+{{/if}}
+- Mailbox: {{mailbox.connector}} connector, lead session only
+- Designs: Figma connector
+- Bug tracker: {{sources.tracker}} (the lead files; agents draft)

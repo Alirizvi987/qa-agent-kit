@@ -1,0 +1,127 @@
+# {{project.name}} QA workspace: house rules
+
+Every person and every AI agent working in this folder follows these rules.
+Read this file first, then `docs/qa/handoff.md`, which says where testing stands today.
+
+## The product
+
+{{project.summary}}
+
+QA owner: {{project.owner}}{{#if project.team}} ({{project.team}}){{/if}}.
+
+## Where things are
+
+**Environments**
+{{#each environments}}
+- `{{name}}`: {{url}}{{#if production}} (**production, the live product: read-only smoke checks only**){{/if}}
+{{/each}}
+
+**What we test**
+{{#each portals}}
+- {{name}}: {{url}} (sign-in page `{{login_path}}`)
+{{/each}}
+{{#if has_mobile}}
+- Mobile app{{#if mobile.android}}: Android `{{mobile.package}}`{{/if}}{{#if mobile.ios}}, iOS{{/if}}
+{{/if}}
+
+**Who uses it (roles)**
+{{#each roles}}
+- **{{name}}**: {{summary}}. Uses the {{portal_name}}.{{#if needs_approval}} Needs admin approval.{{/if}}
+{{/each}}
+
+**Account states every change is checked against**
+{{states}}
+
+**Sources of truth**
+{{#if sources.prd}}
+- Product spec (PRD): {{sources.prd}}
+{{/if}}
+{{#each sources.designs}}
+- Design, {{name}}: {{url}}
+{{/each}}
+{{#if sources.api_docs}}
+- API docs: {{sources.api_docs}}
+{{/if}}
+{{#if sources.tracker}}
+- Bug tracker: {{sources.tracker}}{{#if sources.tracker_url}} ({{sources.tracker_url}}){{/if}}
+{{/if}}
+{{#each sources.repos}}
+- Code, {{name}}: {{url}}
+{{/each}}
+- Test mailbox: {{mailbox.address}} (read through the {{mailbox.connector}} connector)
+
+## Mandatory rules
+
+1. **Read before testing.** This file, then `docs/qa/handoff.md`, then the rule file for the task.
+{{#if rules.headless_first}}
+2. **Work in the background.** Use headless Playwright for websites and admin panels, ADB for Android. Never take over the screen, open visible browser windows or use computer control unless the user asks for it in chat. If a step can't run headless, say so in one line and carry on.
+{{else}}
+2. **Prefer the background.** Use headless Playwright for websites and admin panels and ADB for Android where you can.
+{{/if}}
+{{#if rules.prd_first}}
+3. **Check the spec before reporting anything.** Read `docs/qa/rules/PRD-FIRST-RULE.md`. Quote the PRD section in every issue. Check the "out of scope" part before calling something missing.
+{{/if}}
+4. **Re-check from the screen, {{rules.recheck_times}} times.** No issue goes into a report until it has been reproduced again using only the screens and real emails: no API calls, no database edits, no faked responses. A fresh agent or the lead does this, not the agent that found it. If it doesn't happen {{rules.recheck_times}} times, drop it.
+5. **Proof from this run.** Never claim a bug without current screenshots, recordings or logs. Open every attachment before you reference it.
+6. **No secrets in this folder.** Passwords, login tokens, cookies, verification codes, payment keys and card numbers live only in `{{secrets_file}}` (outside the repo). Never write them into files, reports or chat.
+{{#if production}}
+7. **Production is read-only.** On `{{production.name}}` only look; never sign up, pay, change data or send emails.
+{{else}}
+7. **Know where you are.** Say which environment every result came from.
+{{/if}}
+{{#if has_payments}}
+8. **Test money only.** {{payments.provider}} test mode and test cards ({{payments.test_card}}). Charging test accounts on test environments is allowed.
+{{else}}
+8. **No real money.** Never use a real payment method.
+{{/if}}
+9. **Never fake a state to skip a step.** If a gate can't be passed for real, that is a finding. If the lead allows a shortcut, write down that the real path is untested for that user.
+10. **Respect a "no".** If a tool call is refused, stop and report it. Never retry it another way.
+11. **Check emails on every change.** Any action that can send mail gets checked: arrived, once, right people, right template, working links. See `docs/qa/rules/EMAIL-CHECKS.md`.
+{{#if rules.no_cleanup}}
+12. **Leave created test data in place.** Accounts and records a run creates stay on the test environment and are listed in the run folder. Put back only shared settings (prices, switches, limits) and test users left in a state that blocks the next test.
+{{else}}
+12. **Clean up after yourself.** Remove test data the run created, and put back every shared setting.
+{{/if}}
+13. **Leave out tiny design differences.** Differences of {{rules.min_design_diff_px}}px or less, or near-identical shades, are not reported.
+14. **Think before asking the product owner.** Follow `docs/qa/rules/PO-QUESTION-RULE.md`.
+15. **Agents draft, people file.** Agents never post to the bug tracker. The lead decides what is filed.
+16. **Every use case gets a status before a report is shared:** Pass, Fail → issue, or Not covered + reason. See `docs/qa/rules/PR-TEST-RULES.md`.
+17. **Keep known failures visible.** "Coverage complete" means everything was tested, not that everything passed.
+18. **Save lessons.** When something surprises you, add a short entry to `docs/qa/LESSONS.md` so the next run doesn't repeat it.
+
+## The agent team
+
+Agent definitions live in `.claude/agents/`. Shared protocol: `docs/qa/agents/README.md`.
+
+| Agent | Job | Runs |
+|---|---|---|
+{{#each tester_roles}}
+| `qa-{{slug}}` | Tests {{name}} flows on the {{portal_name}} | side by side with other role agents |
+{{/each}}
+{{#each admin_roles}}
+| `qa-{{slug}}` | {{name}} actions: approvals, settings, status changes | one at a time |
+{{/each}}
+{{#if has_mobile}}
+| `qa-mobile` | The mobile app on the phone and emulators | one at a time per device |
+{{/if}}
+| `qa-reporter` | Merges results and drafts clear issues | after testing |
+| `qa-rechecker` | Repeats each issue from the screen only | before any report |
+
+The lead session (the person plus the main Claude Code chat) plans the run, reads the mailbox, makes approvals and payments, and merges results. Agents can't ask questions mid-run: anything they can't solve comes back as `blocked`.
+
+## Rule files
+
+- `docs/qa/handoff.md`: where we are and what's next
+- `docs/qa/rules/PR-TEST-RULES.md`: how every pull request is tested
+- `docs/qa/rules/PRD-FIRST-RULE.md`: check the spec before reporting
+- `docs/qa/rules/PO-QUESTION-RULE.md`: when to ask the product owner
+- `docs/qa/rules/TICKET-RULES.md`: how a finding becomes an issue
+- `docs/qa/rules/RETEST-RUNBOOK.md`: how fixes are retested
+- `docs/qa/rules/EMAIL-CHECKS.md`: how emails are checked
+{{#if has_mobile}}
+- `docs/qa/rules/MOBILE-RULES.md`: how the mobile app is tested
+{{/if}}
+- `docs/qa/agents/fixture-recipe.md`: how test users are made
+- `docs/qa/agents/verdict-schema.md`: the format agents report in
+- `docs/qa/flow-backlog.md`: what to test next
+- `docs/qa/LESSONS.md`: lessons learned, shared with the team

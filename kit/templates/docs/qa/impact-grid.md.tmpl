@@ -1,0 +1,16 @@
+# Impact grid
+
+Every change is checked against this grid: every role × every account state.
+Copy it into the run folder for each PR and fill each square.
+
+Legend: **T** tested and passed · **F** issue found · **–** checked, not affected · **n/a** this role can't be in this state
+
+| State | {{#each roles}}{{name}} | {{/each}}
+|---|{{#each roles}}---|{{/each}}
+{{#each states}}
+| {{this}} | {{#each roles}}  | {{/each}}
+{{/each}}
+
+## Which combinations exist
+
+Fill this in during the first week, so later runs know which squares are "n/a".

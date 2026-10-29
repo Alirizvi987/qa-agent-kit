@@ -1,0 +1,36 @@
+# How fixes are retested
+
+When a developer marks an issue as fixed ("ready for QA"), "fixed" has to be proven, not promised.
+
+## For each issue
+
+1. **Read the original issue** and its proof. Note the role, state, screen width or device.
+2. **Check the fix is deployed** on {{main_env}}: the PR is merged *and* the environment has been deployed since.
+   A fix that isn't deployed yet is "Can't test yet", not "Not fixed".
+3. **Repeat the original steps** on the current build, with the same role, state and width.
+4. **Test the neighbour**: a normal path through the same screen, and the other roles who use it.
+5. **Check the server agrees** with the screen: what was saved, charged or sent.
+6. **Check emails** if the flow sends any.
+7. **Never overwrite** the original proof. New proof goes in a new folder.
+
+## Results
+
+- **Fixed**: the original failure is gone, the neighbour works, the server agrees.
+- **Partly fixed**: some of it is gone. Say exactly what still fails.
+- **Not fixed**: the original steps still fail. Attach new proof.
+- **Can't test yet**: not deployed, no test user in that state yet, or blocked. Say why and what is needed.
+
+A side effect found while retesting is a **new** issue, linked to the old one.
+
+## Posting
+
+Write the retest comment in the run folder first:
+
+```
+Retested on <environment>, <date>, <build if known>.
+Result: Fixed / Partly fixed / Not fixed / Can't test yet
+What I checked: original steps · neighbour path · server · emails
+Proof: …
+```
+
+The lead posts it{{#if sources.tracker}} in {{sources.tracker}}{{/if}} and moves the issue.

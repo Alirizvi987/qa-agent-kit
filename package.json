@@ -1,0 +1,20 @@
+{
+  "name": "qa-agent-kit",
+  "version": "1.0.0",
+  "description": "Clone, describe your project, and get a ready QA workspace: house rules, rule files, AI test agents for Claude Code, and starter scripts for web and Android testing.",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "setup": "node kit/server.mjs",
+    "generate": "node kit/generate.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "health": "node scripts/health-check.mjs",
+    "signin": "node scripts/signin-shot.mjs",
+    "new-run": "node scripts/new-run.mjs",
+    "test": "node kit/selftest.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.48.2"
+  }
+}

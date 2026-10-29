@@ -1,0 +1,63 @@
+# How the agents work together
+
+Every agent reads this file when it starts. Role-specific detail is in `.claude/agents/qa-<role>.md`.
+
+## 1. The idea
+
+We test **one flow at a time, to the end**, across every role that flow touches. Each role agent owns
+its own test users, browser sessions and proof, and returns a fixed-format result
+(`verdict-schema.md`). The lead merges the results into one record per flow.
+
+## 2. Hard facts that shape every run
+
+1. **Subagents can't ask anything mid-run.** No codes, no decisions. Anything an agent can't solve goes into `blocked[]`.
+2. **The mailbox belongs to the lead.** Agents ask the lead for verification links and email checks through `blocked[]`.
+3. **Approvals and payments are done by the lead** (or the admin agent when the lead sends it).
+4. **Admin and mobile run one at a time.** They change shared things (settings, the device).
+5. **Never borrow another lane's users**, not even to look. If the product signs out a user who signs in elsewhere, sharing users causes fake errors.
+6. **A timeout everywhere is probably the network or VPN; a 5xx error is the server.** Never call an outage without telling them apart.
+
+## 3. Lanes
+
+A **lane** is one agent instance's private set of test users. Lane ids are `A`, `B`, `C`… per role.
+
+| Role | Lane key prefix | Lane journal |
+|---|---|---|
+{{#each roles}}
+| {{name}} | `FIX_{{key}}_<lane>_` | `docs/qa/lanes/{{slug}}-<lane>.json` |
+{{/each}}
+
+Each user gets `<prefix><slot>_EMAIL`, `<prefix><slot>_PASSWORD`, `<prefix><slot>_ID`,
+e.g. `FIX_{{roles.0.key}}_A_U1_EMAIL`.
+
+- Secrets go **only** into `{{secrets_file}}` (outside the repo). Append, never rewrite: other lanes may be writing too.
+- The lane journal (in the repo) holds **no secrets**: user id, role, state, what the account has, which flow made it.
+- Ids and states also go into `docs/qa/test-users.md`.
+
+## 4. Start-up, every run, in order
+
+1. Read `AGENTS.md`, `docs/qa/handoff.md`, this file and `verdict-schema.md`.
+2. Read your lane journal. Know what users you already own before creating more.
+3. Health-check the lane: `npm run health -- FIX_<ROLE>_<LANE>`
+   - Sign-in fails but the site works → the test user is broken. Recreate it or return `blocked`. **Never report it as a product bug.**
+   - Every site times out → probably the network. Return `blocked` with `reason: "network"`.
+4. Only then start the flow.
+
+## 5. Depth
+
+- **smoke**: does the flow finish, and does each screen load without errors? One screenshot per screen.
+- **full**: every screen checked for design, states (empty, loading, error, validation, no permission, role-specific), every control, server agrees after each change, screen widths {{widths_text}}.
+- **verify**: re-check one named issue only (see `docs/qa/rules/RETEST-RUNBOOK.md`).
+
+The role that owns a flow runs **full**; the other roles in it run **smoke**.
+
+## 6. Proof
+
+- Save everything under `runs/<date>-<name>/<lane>/`: screenshots, page snapshots, logs, `verdict.json`.
+- Name files by step: `03-plans-gold-selected.png`.
+- Open every file you reference. A missing attachment makes the whole result untrustworthy.
+- Never save secrets, tokens or card numbers in proof (check screenshots of settings pages).
+
+## 7. What you return
+
+Only the JSON from `verdict-schema.md`. No story around it.

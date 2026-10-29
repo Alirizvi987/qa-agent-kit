@@ -1,0 +1,26 @@
+# Run brief: {{run.name}}
+
+_Started {{today}} · environment `{{main_env}}` · lead {{project.owner}}_
+
+## What we are testing
+
+- PRs / tickets: _list with links_
+- Server PRs behind them: _list_
+- Spec sections: _§…_
+- Design frames (newest only, for these screens): _links_
+
+## Lanes
+
+| Lane | Agent | Role | Users | Depth | Device / width |
+|---|---|---|---|---|---|
+{{#each roles}}
+| A | `qa-{{slug}}` | {{name}} | `FIX_{{key}}_A_*` | {{depth}} | {{widths_text}} |
+{{/each}}
+
+## Deploy notes
+
+_env keys, deploy order, flags_
+
+## Not in scope for this run
+
+- _…_

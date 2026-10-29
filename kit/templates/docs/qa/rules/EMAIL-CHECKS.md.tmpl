@@ -1,0 +1,27 @@
+# Checking emails on every change
+
+Emails are part of the product. After any action that can send mail (sign-up, save, approve, reject,
+payment, invite, password reset, status change), check the tester mailbox.
+
+Mailbox: **{{mailbox.address}}**, read through the **{{mailbox.connector}}** connector by the lead session.
+Test users use aliases like `{{mailbox.example_alias}}`, so every email lands in this one inbox.
+Agents can't read the mailbox themselves: they ask the lead through `blocked` with what to look for.
+
+## For each action
+
+1. **Did it arrive?** The expected email arrives within about 10 minutes.
+2. **Only once?** No duplicates, and nothing unexpected (one email per save, not one per field; none for a save with no changes).
+3. **Right people?** Who should get it, and who should not.
+4. **Right template?** Subject, sender, greeting and name, body text, the data it quotes (names, amounts, dates, before and after), who it says did the action.
+5. **Do the links work?** Open every button and link, signed in and signed out. Each lands on the right screen.
+6. **Consistent?** Same header, footer, logo and tone as the other emails.
+
+## The log
+
+Each lane keeps `EMAILS.md` in the run folder:
+
+| Time | Action | Subject | To | Result |
+|---|---|---|---|---|
+
+A missing, wrong, duplicated or broken email is a finding like any other: it needs the screen action
+and the delivered email, {{rules.recheck_times}} times.

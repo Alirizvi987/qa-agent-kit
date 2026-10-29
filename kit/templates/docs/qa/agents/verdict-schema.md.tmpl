@@ -1,0 +1,51 @@
+# The result format
+
+Every role agent's **final message is this JSON and nothing else**. Write the full object to
+`runs/<run>/<lane>/verdict.json`, and return only what is new or changed in this run.
+
+```jsonc
+{
+  "flow": "business-signup",           // a slug from docs/qa/flow-backlog.md
+  "role": "{{roles.0.slug}}",
+  "lane": "A",
+  "depth": "full",                     // smoke | full | verify
+  "environment": { "name": "{{main_env}}", "surface": "web", "portal": "{{roles.0.portal_url}}", "build": null },
+  "result": "pass",                    // pass | fail | blocked | partial
+  "summary": "One sentence: what was covered and what the result rests on.",
+
+  "screens": [
+    {
+      "name": "Choose a plan",
+      "route": "/plans",
+      "result": "pass",                // pass | fail | blocked
+      "checks": { "design": "pass", "states": "pass", "functions": "pass", "server_agrees": "pass", "widths": [{{widths_text}}] },
+      "proof": ["runs/…/A/03-plans.png"]
+    }
+  ],
+  "carried_forward": [ { "name": "Sign in", "result": "pass", "from_run": "2026-10-20" } ],
+
+  "defects": [
+    {
+      "title": "Plan updated email button opens the sign-in page",
+      "severity": "P2",
+      "screen": "Email: Plan updated",
+      "steps": ["Sign in as an approved Business", "Open Plans, choose Gold, pay", "Open the email", "Click View plan"],
+      "expected": "Plans page (spec §4.2)",
+      "actual": "Sign-in page, even when signed in",
+      "seen": "2 of 2",
+      "from_screen_only": true,
+      "proof": ["runs/…/A/07-email.png"]
+    }
+  ],
+  "emails": [ { "action": "Pay for Gold", "subject": "Plan updated", "to": "…", "result": "fail" } ],
+  "blocked": [ { "what": "Verification link for sara.c1", "reason": "mailbox", "needs": "lead" } ],
+  "admin_request": null,               // e.g. { "action": "approve", "user_id": 123 }
+  "fixtures_created": [ { "key": "FIX_{{roles.0.key}}_A_U1", "state": "Approved", "notes": "" } ],
+  "coverage": { "screens_total": 8, "screens_done": 8, "not_covered": [ { "case": "Suspended user", "reason": "no fixture yet" } ] }
+}
+```
+
+Rules:
+- `defects[]` are **candidates**. They become issues only after the re-check (`qa-rechecker`).
+- Anything marked `instrumented` can support a pass, never a defect.
+- Don't re-send unchanged screens. List them in `carried_forward`.

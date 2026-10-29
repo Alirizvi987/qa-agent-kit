@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Agent Kit setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a long form of numbered steps on the left, a sticky "what you'll get" card on the right. */
+:root {
+  --paper: #F3F5F2; --surface: #FFFFFF; --sunk: #E8ECE8; --ink: #16201B; --muted: #55625B; --line: #D6DDD8;
+  --accent: #0B6B52; --accent-ink: #FFFFFF; --accent-soft: #DCEEE6; --fail: #B4381F; --fail-soft: #F7E2DB;
+  --warn: #946100; --warn-soft: #F4EAD2;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0F1512; --surface: #161E1A; --sunk: #1C2621; --ink: #E5ECE7; --muted: #9AA9A1; --line: #2A3530;
+    --accent: #5DC59E; --accent-ink: #0B1611; --accent-soft: #15332A; --fail: #F08468; --fail-soft: #3A1E16;
+    --warn: #E2B455; --warn-soft: #33290F; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 max(16px, 3vw); }
+header { padding: 48px 0 28px; display: grid; gap: 14px; }
+.tag { font: 600 .75rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.1; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); font-weight: 800; letter-spacing: -.02em; }
+h2 { font-size: 1.375rem; font-weight: 750; }
+.lede { color: var(--muted); font-size: 1.125rem; max-width: 62ch; margin: 0; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+button { font: 600 .9375rem var(--body); border-radius: 10px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.small { padding: 6px 11px; font-size: .8125rem; }
+button.link { border: 0; background: none; color: var(--accent); padding: 4px 0; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.layout { display: grid; gap: 28px; grid-template-columns: 1fr; padding-bottom: 80px; }
+@media (min-width: 980px) { .layout { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
+form { display: grid; gap: 18px; min-width: 0; }
+fieldset { margin: 0; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 22px; display: grid; gap: 16px; min-width: 0; }
+legend { display: contents; }
+.step-head { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; }
+.num { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--accent); color: var(--accent); display: grid; place-items: center; font: 800 1rem var(--display); }
+.step-head p { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; }
+.fields { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .fields.two { grid-template-columns: 1fr 1fr; } .fields.three { grid-template-columns: repeat(3, 1fr); } }
+label.f { display: grid; gap: 5px; font-size: .875rem; font-weight: 600; min-width: 0; }
+label.f small { font-weight: 400; color: var(--muted); }
+input[type=text], input[type=url], input[type=email], input[type=number], select, textarea {
+  width: 100%; font: 400 .9375rem var(--body); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+}
+textarea { min-height: 84px; resize: vertical; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: .9375rem; }
+.check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); flex: none; }
+.check small { display: block; color: var(--muted); font-size: .8125rem; }
+.rows { display: grid; gap: 10px; }
+.row { display: grid; gap: 10px; padding: 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); position: relative; }
+.row .fields { padding-right: 34px; }
+.row .remove { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; padding: 0; border-radius: 7px; font-size: 1.1rem; line-height: 1; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); font-size: .875rem; }
+.chip button { border: 0; background: none; padding: 0 6px; font-size: 1rem; color: var(--muted); }
+.chip-add { display: flex; gap: 8px; }
+.hidden { display: none !important; }
+details { border-top: 1px dashed var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 600; font-size: .9375rem; color: var(--accent); }
+details[open] summary { margin-bottom: 12px; }
+aside { position: sticky; top: 16px; display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: grid; gap: 12px; }
+.card h3 { font-size: 1.0625rem; }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: .875rem; }
+.card li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
+.card li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+.card code, .mono { font-family: var(--mono); font-size: .8125rem; }
+.agents { display: flex; flex-wrap: wrap; gap: 6px; }
+.agents span { font: 600 .75rem var(--mono); padding: 4px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.msg { border-radius: 10px; padding: 12px 14px; font-size: .9375rem; }
+.msg.err { background: var(--fail-soft); color: var(--fail); }
+.msg.ok { background: var(--accent-soft); }
+.msg ul { margin: 6px 0 0; padding-left: 1.2em; }
+#result { scroll-margin-top: 16px; }
+.next { display: grid; gap: 10px; }
+.cmd { display: flex; gap: 8px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 9px; padding: 9px 12px; font: .8125rem var(--mono); overflow-x: auto; }
+.cmd span { flex: 1; white-space: nowrap; }
+.cmd button { background: transparent; color: var(--paper); border-color: rgb(255 255 255 / .3); padding: 4px 9px; font-size: .75rem; }
+.files { max-height: 220px; overflow: auto; font: .75rem/1.7 var(--mono); color: var(--muted); margin: 0; padding: 0; list-style: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tag">QA Agent Kit · setup</span>
+    <h1>Tell the kit about your project</h1>
+    <p class="lede">Fill in what you know. Leave the rest empty and add it later. When you press <b>Create my QA workspace</b>, the kit writes your house rules, rule files and AI test agents into this folder, made for your product.</p>
+    <div class="bar">
+      <button type="button" id="load-example">Fill with an example</button>
+      <button type="button" id="load-saved" class="hidden">Load my saved settings</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <form id="form" novalidate>
+      <fieldset>
+        <legend><div class="step-head"><span class="num">1</span><div><h2>The project</h2><p>A few sentences anyone could understand.</p></div></div></legend>
+        <div class="fields two">
+          <label class="f" for="project-name">Project name<input id="project-name" type="text" data-path="project.name" placeholder="Acme Bookings" required></label>
+          <label class="f" for="project-owner">QA lead<input id="project-owner" type="text" data-path="project.owner" placeholder="Your name"></label>
+        </div>
+        <label class="f" for="project-summary">What the product does <small>Two or three plain sentences. Agents read this first.</small><textarea id="project-summary" data-path="project.summary" placeholder="Customers find a clinic and book an appointment. Clinics sign up and get approved by staff…"></textarea></label>
+        <label class="f" for="project-team">Team <small>optional</small><input id="project-team" type="text" data-path="project.team" placeholder="QA"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">2</span><div><h2>Environments</h2><p>Where the product runs. Mark the live one, so agents only ever look at it.</p></div></div></legend>
+        <div class="rows" data-list="environments"></div>
+        <div><button type="button" class="small" data-add="environments">+ Add environment</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">3</span><div><h2>What you test</h2><p>Each website, portal or admin panel, on your main test environment.</p></div></div></legend>
+        <div class="rows" data-list="portals"></div>
+        <div><button type="button" class="small" data-add="portals">+ Add website or portal</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">4</span><div><h2>Who uses it</h2><p>Each type of user. Every role gets its own AI tester and its own test users.</p></div></div></legend>
+        <div class="rows" data-list="roles"></div>
+        <div><button type="button" class="small" data-add="roles">+ Add role</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">5</span><div><h2>Account states</h2><p>Every situation an account can be in. Each change is checked against all of them.</p></div></div></legend>
+        <div class="chips" id="states"></div>
+        <div class="chip-add">
+          <input id="state-new" type="text" placeholder="e.g. Trial ended" aria-label="New account state">
+          <button type="button" class="small" id="state-add">Add</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">6</span><div><h2>Mobile app</h2><p>Skip this if there's no app.</p></div></div></legend>
+        <div class="fields two">
+          <label class="check" for="mobile-android"><input id="mobile-android" type="checkbox" data-path="mobile.android"><span>Android app</span></label>
+          <label class="check" for="mobile-ios"><input id="mobile-ios" type="checkbox" data-path="mobile.ios"><span>iOS app</span></label>
+        </div>
+        <div id="android-fields" class="fields two">
+          <label class="f" for="mobile-package">App package <small>e.g. com.company.app</small><input id="mobile-package" type="text" data-path="mobile.package"></label>
+          <label class="f" for="mobile-device">Real test phone<input id="mobile-device" type="text" data-path="mobile.device" placeholder="Samsung Galaxy S22"></label>
+          <label class="f" for="mobile-width">Screen width (px)<input id="mobile-width" type="number" data-path="mobile.width" data-type="number" placeholder="1080"></label>
+          <label class="f" for="mobile-height">Screen height (px)<input id="mobile-height" type="number" data-path="mobile.height" data-type="number" placeholder="2340"></label>
+          <label class="f" for="mobile-dpi">Screen density (dpi)<input id="mobile-dpi" type="number" data-path="mobile.dpi" data-type="number" placeholder="420"></label>
+          <label class="f" for="mobile-emulators">Matched emulators<input id="mobile-emulators" type="number" min="0" max="6" data-path="mobile.emulators" data-type="number" placeholder="3"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">7</span><div><h2>Sources of truth</h2><p>Where agents check what "right" looks like.</p></div></div></legend>
+        <div class="fields two">
+          <label class="f" for="sources-prd">Product spec (PRD) link<input id="sources-prd" type="url" data-path="sources.prd" placeholder="https://docs…"></label>
+          <label class="f" for="sources-api">API docs link<input id="sources-api" type="url" data-path="sources.api_docs" placeholder="https://…/api/docs"></label>
+          <label class="f" for="sources-tracker">Bug tracker<select id="sources-tracker" data-path="sources.tracker"><option>Jira</option><option>Linear</option><option>GitHub Issues</option><option>Plane</option><option>ClickUp</option><option>Asana</option><option>A spreadsheet</option><option>None yet</option></select></label>
+          <label class="f" for="sources-tracker-url">Tracker link<input id="sources-tracker-url" type="url" data-path="sources.tracker_url"></label>
+        </div>
+        <h3 style="font-size:1rem">Design files</h3>
+        <div class="rows" data-list="sources.designs"></div>
+        <div><button type="button" class="small" data-add="sources.designs">+ Add design file</button></div>
+        <h3 style="font-size:1rem">Code repositories</h3>
+        <div class="rows" data-list="sources.repos"></div>
+        <div><button type="button" class="small" data-add="sources.repos">+ Add repository</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">8</span><div><h2>Email and payments</h2><p>One tester inbox receives every test email. Payments always use test mode.</p></div></div></legend>
+        <div class="fields two">
+          <label class="f" for="mailbox-address">Tester mailbox<input id="mailbox-address" type="email" data-path="mailbox.address" placeholder="qa.team@company.com"></label>
+          <label class="f" for="mailbox-alias">Alias pattern <small>{alias} is replaced per test user</small><input id="mailbox-alias" type="text" data-path="mailbox.alias_pattern" placeholder="qa.team+{alias}@company.com"></label>
+          <label class="f" for="mailbox-connector">Mailbox connector<select id="mailbox-connector" data-path="mailbox.connector"><option>Gmail</option><option>Outlook</option><option>Other</option></select></label>
+          <label class="f" for="payments-provider">Payment provider<select id="payments-provider" data-path="payments.provider"><option>None</option><option>Stripe</option><option>Braintree</option><option>Adyen</option><option>PayPal</option><option>Other</option></select></label>
+          <label class="f" for="payments-card">Test card <small>the provider's public test number, never a real card</small><input id="payments-card" type="text" data-path="payments.test_card" placeholder="4242 4242 4242 4242"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="step-head"><span class="num">9</span><div><h2>House rules</h2><p>The defaults are what work well. Change them only if your team agrees.</p></div></div></legend>
+        <div class="fields two">
+          <label class="f" for="rules-recheck">Re-check each issue this many times<input id="rules-recheck" type="number" min="1" max="5" data-path="rules.recheck_times" data-type="number"></label>
+          <label class="f" for="rules-px">Ignore design differences up to (px)<input id="rules-px" type="number" min="0" max="10" data-path="rules.min_design_diff_px" data-type="number"></label>
+          <label class="f" for="widths">Screen widths to test <small>comma separated</small><input id="widths" type="text" data-path="widths" data-type="numbers"></label>
+          <label class="f" for="rules-report">Report format<select id="rules-report" data-path="rules.report"><option>A shareable web page (Claude artifact)</option><option>A Markdown file in the run folder</option><option>Issues drafted for the tracker</option></select></label>
+        </div>
+        <label class="check" for="rules-prd"><input id="rules-prd" type="checkbox" data-path="rules.prd_first"><span>Check the spec before reporting<small>Every issue quotes the spec section.</small></span></label>
+        <label class="check" for="rules-headless"><input id="rules-headless" type="checkbox" data-path="rules.headless_first"><span>Work in the background<small>Hidden browsers and ADB; nothing takes over the screen.</small></span></label>
+        <label class="check" for="rules-cleanup"><input id="rules-cleanup" type="checkbox" data-path="rules.no_cleanup"><span>Leave created test data in place<small>Only shared settings are put back after a test.</small></span></label>
+        <details>
+          <summary>Sign-in form details (for the health check)</summary>
+          <div class="fields two">
+            <label class="f" for="login-email">Email field<input id="login-email" type="text" class="mono" data-path="login.email_selector"></label>
+            <label class="f" for="login-password">Password field<input id="login-password" type="text" class="mono" data-path="login.password_selector"></label>
+            <label class="f" for="login-submit">Sign-in button<input id="login-submit" type="text" class="mono" data-path="login.submit_selector"></label>
+            <label class="f" for="login-success">Text shown after sign-in <small>optional</small><input id="login-success" type="text" data-path="login.success_text" placeholder="e.g. Dashboard"></label>
+          </div>
+        </details>
+      </fieldset>
+
+      <div id="errors" class="msg err hidden" role="alert"></div>
+      <div class="bar">
+        <button type="submit" class="primary" id="create">Create my QA workspace</button>
+        <button type="button" id="preview">Preview the files</button>
+      </div>
+      <div id="result" class="hidden"></div>
+    </form>
+
+    <aside>
+      <div class="card">
+        <h3>What you'll get</h3>
+        <div class="agents" id="agent-list"></div>
+        <ul id="get-list"></ul>
+      </div>
+      <div class="card">
+        <h3>Good to know</h3>
+        <ul>
+          <li><span>Nothing leaves this computer. Settings are saved to <code>project.json</code>.</span></li>
+          <li><span>Run setup again any time. Files you edited by hand are kept.</span></li>
+          <li><span>No passwords here. Test-user passwords go in a private file later.</span></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const DEFAULTS = {
+  project: { name: '', owner: '', summary: '', team: 'QA' },
+  environments: [
+    { name: 'dev', url: '', production: false },
+    { name: 'staging', url: '', production: false },
+    { name: 'production', url: '', production: true },
+  ],
+  portals: [{ name: 'Website', url: '', login_path: '/login' }, { name: 'Admin panel', url: '', login_path: '/login' }],
+  roles: [
+    { name: 'Customer', summary: '', portal: 'website', needs_approval: false, is_admin: false },
+    { name: 'Admin', summary: 'staff who approve accounts and manage settings', portal: 'admin-panel', needs_approval: false, is_admin: true },
+  ],
+  states: ['New sign-up', 'Waiting for approval', 'Approved', 'Expired', 'Suspended', 'Rejected', 'Deleted'],
+  mobile: { android: false, ios: false, package: '', device: 'Samsung Galaxy S22', width: 1080, height: 2340, dpi: 420, emulators: 3 },
+  sources: { prd: '', api_docs: '', tracker: 'Jira', tracker_url: '', designs: [{ name: 'Designs', url: '' }], repos: [] },
+  mailbox: { address: '', alias_pattern: '', connector: 'Gmail' },
+  payments: { provider: 'None', test_card: '' },
+  login: { email_selector: 'input[type=email]', password_selector: 'input[type=password]', submit_selector: 'button[type=submit]', success_text: '' },
+  rules: { recheck_times: 2, prd_first: true, min_design_diff_px: 2, no_cleanup: true, headless_first: true, severity: ['P1', 'P2', 'P3'], report: 'A shareable web page (Claude artifact)' },
+  widths: [1440, 1280, 390],
+};
+
+const LISTS = {
+  environments: { add: { name: '', url: '', production: false }, fields: [
+    ['name', 'Name', 'text', 'staging'], ['url', 'Address', 'url', 'https://staging.company.com'], ['production', 'This is the live product', 'checkbox'] ] },
+  portals: { add: { name: '', url: '', login_path: '/login' }, fields: [
+    ['name', 'Name', 'text', 'Customer website'], ['url', 'Address on the test environment', 'url', 'https://app.dev.company.com'], ['login_path', 'Sign-in page', 'text', '/login'] ] },
+  roles: { add: { name: '', summary: '', portal: '', needs_approval: false, is_admin: false }, fields: [
+    ['name', 'Role name', 'text', 'Customer'], ['summary', 'What they do', 'text', 'books appointments'], ['portal', 'Uses', 'portal'],
+    ['needs_approval', 'Needs admin approval', 'checkbox'], ['is_admin', 'This is an admin / staff role', 'checkbox'] ] },
+  'sources.designs': { add: { name: '', url: '' }, fields: [['name', 'Name', 'text', 'Web designs'], ['url', 'Figma link', 'url', 'https://www.figma.com/design/…']] },
+  'sources.repos': { add: { name: '', url: '' }, fields: [['name', 'Name', 'text', 'Website'], ['url', 'Link', 'url', 'https://github.com/…']] },
+};
+
+let state = structuredClone(DEFAULTS);
+const $ = s => document.querySelector(s);
+const get = (o, path) => path.split('.').reduce((x, k) => (x == null ? undefined : x[k]), o);
+const set = (o, path, v) => { const ks = path.split('.'); const last = ks.pop(); ks.reduce((x, k) => (x[k] ??= {}), o)[last] = v; };
+const slugify = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function merge(base, extra) {
+  const out = structuredClone(base);
+  for (const [k, v] of Object.entries(extra || {})) {
+    out[k] = v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object' && !Array.isArray(base[k]) ? merge(base[k], v) : v;
+  }
+  return out;
+}
+
+function renderScalars() {
+  document.querySelectorAll('[data-path]').forEach(el => {
+    const v = get(state, el.dataset.path);
+    if (el.type === 'checkbox') el.checked = Boolean(v);
+    else if (el.dataset.type === 'numbers') el.value = (v || []).join(', ');
+    else el.value = v ?? '';
+  });
+  $('#android-fields').classList.toggle('hidden', !state.mobile.android);
+}
+
+function renderList(name) {
+  const box = document.querySelector(`[data-list="${name}"]`);
+  const cfg = LISTS[name];
+  const items = get(state, name) || [];
+  const portals = state.portals.filter(p => p.name).map(p => ({ slug: p.slug || slugify(p.name), name: p.name }));
+  box.innerHTML = items.map((item, i) => {
+    const fields = cfg.fields.map(([key, label, type, ph]) => {
+      const id = `${name.replace('.', '-')}-${i}-${key}`;
+      const attrs = `id="${id}" data-row="${name}" data-i="${i}" data-key="${key}"`;
+      if (type === 'checkbox') return `<label class="check" for="${id}"><input type="checkbox" ${attrs} ${item[key] ? 'checked' : ''}><span>${label}</span></label>`;
+      if (type === 'portal') return `<label class="f" for="${id}">${label}<select ${attrs}>${portals.map(p => `<option value="${esc(p.slug)}" ${p.slug === item.portal ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+      return `<label class="f" for="${id}">${label}<input type="${type}" ${attrs} value="${esc(item[key])}" placeholder="${esc(ph)}"></label>`;
+    }).join('');
+    return `<div class="row"><div class="fields ${cfg.fields.length > 3 ? 'two' : 'three'}">${fields}</div><button type="button" class="remove" data-remove="${name}" data-i="${i}" aria-label="Remove">×</button></div>`;
+  }).join('') || `<p style="margin:0;color:var(--muted);font-size:.9375rem">None yet.</p>`;
+}
+
+function renderStates() {
+  $('#states').innerHTML = state.states.map((s, i) => `<span class="chip">${esc(s)}<button type="button" data-state="${i}" aria-label="Remove ${esc(s)}">×</button></span>`).join('');
+}
+
+function renderSummary() {
+  const roles = state.roles.filter(r => r.name);
+  const agents = [...roles.map(r => 'qa-' + slugify(r.name)), ...(state.mobile.android || state.mobile.ios ? ['qa-mobile'] : []), 'qa-reporter', 'qa-rechecker'];
+  $('#agent-list').innerHTML = agents.map(a => `<span>${esc(a)}</span>`).join('');
+  const items = [
+    `${agents.length} AI test agents, one per role plus reporter and re-checker`,
+    'House rules (AGENTS.md) and a one-page handoff',
+    '7 rule files: PR testing, spec-first, emails, retests, issues, PO questions' + (state.mobile.android || state.mobile.ios ? ', mobile' : ''),
+    `An impact grid: ${roles.length} roles × ${state.states.length} states`,
+    'A first-week checklist, test plan and flow backlog',
+    'A test-user recipe and a shared lessons file',
+    'Claude Code permissions for the kit\'s scripts',
+  ];
+  $('#get-list').innerHTML = items.map(t => `<li><span>${esc(t)}</span></li>`).join('');
+}
+
+function renderAll() {
+  renderScalars();
+  Object.keys(LISTS).forEach(renderList);
+  renderStates();
+  renderSummary();
+}
+
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.path) {
+    let v = el.type === 'checkbox' ? el.checked : el.value;
+    if (el.dataset.type === 'number') v = el.value === '' ? '' : Number(el.value);
+    if (el.dataset.type === 'numbers') v = el.value.split(',').map(x => Number(x.trim())).filter(Boolean);
+    set(state, el.dataset.path, v);
+    if (el.dataset.path === 'mobile.android') $('#android-fields').classList.toggle('hidden', !el.checked);
+  } else if (el.dataset.row) {
+    const item = get(state, el.dataset.row)[Number(el.dataset.i)];
+    item[el.dataset.key] = el.type === 'checkbox' ? el.checked : el.value;
+    if (el.dataset.row === 'portals' && el.dataset.key === 'name') { item.slug = slugify(el.value); renderList('roles'); }
+  }
+  renderSummary();
+});
+document.addEventListener('change', e => { if (e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button');
+  if (!t) return;
+  if (t.dataset.add) {
+    const list = get(state, t.dataset.add);
+    const fresh = structuredClone(LISTS[t.dataset.add].add);
+    if (t.dataset.add === 'roles') fresh.portal = state.portals[0] ? (state.portals[0].slug || slugify(state.portals[0].name)) : '';
+    list.push(fresh);
+    renderList(t.dataset.add); renderSummary();
+    const rows = document.querySelectorAll(`[data-list="${t.dataset.add}"] .row`);
+    rows[rows.length - 1]?.querySelector('input')?.focus();
+  }
+  if (t.dataset.remove) {
+    get(state, t.dataset.remove).splice(Number(t.dataset.i), 1);
+    renderList(t.dataset.remove); if (t.dataset.remove === 'portals') renderList('roles'); renderSummary();
+  }
+  if (t.dataset.state !== undefined) { state.states.splice(Number(t.dataset.state), 1); renderStates(); renderSummary(); }
+});
+
+function addState() {
+  const input = $('#state-new');
+  const v = input.value.trim();
+  if (v && !state.states.includes(v)) { state.states.push(v); renderStates(); renderSummary(); }
+  input.value = ''; input.focus();
+}
+$('#state-add').addEventListener('click', addState);
+$('#state-new').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addState(); } });
+
+function payload() {
+  const p = structuredClone(state);
+  p.portals = p.portals.filter(x => x.name).map(x => ({ ...x, slug: x.slug || slugify(x.name) }));
+  p.roles = p.roles.filter(x => x.name);
+  p.environments = p.environments.filter(x => x.name);
+  return p;
+}
+
+async function submit(path) {
+  $('#errors').classList.add('hidden');
+  const res = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload()) });
+  const r = await res.json().catch(() => ({ ok: false, errors: ['The setup server did not answer. Is "npm run setup" still running?'] }));
+  if (!r.ok) {
+    $('#errors').innerHTML = `<b>Please fix these first:</b><ul>${(r.errors || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    $('#errors').classList.remove('hidden');
+    $('#errors').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const list = (label, xs) => xs?.length ? `<p style="margin:8px 0 2px"><b>${label} (${xs.length})</b></p><ul class="files">${xs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const verb = r.dry ? ['Would create', 'Would update'] : ['Created', 'Updated'];
+  const next = r.dry ? '' : `
+    <div class="next">
+      <h3>Next steps</h3>
+      <p style="margin:0">1. In a terminal in this folder, install the browser tools once:</p>
+      <div class="cmd"><span>npm install && npx playwright install chromium</span><button type="button" data-copy>Copy</button></div>
+      <p style="margin:0">2. Open Claude Code in this folder and say:</p>
+      <div class="cmd"><span>Read AGENTS.md and start docs/qa/FIRST-WEEK.md with me.</span><button type="button" data-copy>Copy</button></div>
+      <p style="margin:0">3. Check every website loads:</p>
+      <div class="cmd"><span>npm run smoke</span><button type="button" data-copy>Copy</button></div>
+    </div>`;
+  $('#result').className = 'msg ok';
+  $('#result').innerHTML = `<h3>${r.dry ? 'Preview: nothing was written' : 'Your QA workspace is ready'}</h3>
+    <p style="margin:4px 0 0" class="mono">${esc(r.folder)}</p>
+    ${list(verb[0], r.created)}${list(verb[1], r.written)}${list('Kept as you left them', r.kept)}${next}`;
+  $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('#form').addEventListener('submit', e => { e.preventDefault(); submit('/api/generate'); });
+$('#preview').addEventListener('click', () => submit('/api/preview'));
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-copy]');
+  if (!b) return;
+  const text = b.previousElementSibling.textContent;
+  try { await navigator.clipboard.writeText(text); b.textContent = 'Copied'; } catch { getSelection().selectAllChildren(b.previousElementSibling); }
+  setTimeout(() => (b.textContent = 'Copy'), 1500);
+});
+
+async function load(path) {
+  const res = await fetch(path);
+  if (!res.ok || res.status === 204) return false;
+  state = merge(DEFAULTS, await res.json());
+  state.portals = state.portals.map(p => ({ ...p, slug: p.slug || slugify(p.name) }));
+  renderAll();
+  return true;
+}
+$('#load-example').addEventListener('click', () => load('/api/example'));
+$('#load-saved').addEventListener('click', () => load('/api/project'));
+
+renderAll();
+load('/api/project').then(found => { if (found) $('#load-saved').classList.remove('hidden'); });
+</script>
+</body>
+</html>

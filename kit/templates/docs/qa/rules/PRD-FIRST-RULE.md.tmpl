@@ -1,0 +1,21 @@
+# Check the spec before reporting
+
+The design tells you whether something **looks** right. The product spec (PRD) tells you whether it
+**should exist**, how it should **behave**, and whether a role is even meant to see it.
+
+{{#if sources.prd}}
+Spec: {{sources.prd}}
+{{else}}
+Spec: not linked yet. Add it in the setup screen and run `npm run generate`.
+{{/if}}
+
+Before you log any issue or comment:
+
+1. **Find the section.** Search the spec for the screen, feature or rule. Quote the section number in the issue.
+2. **Read "out of scope" first** before reporting a missing feature. If it's out of scope, it isn't a bug.
+3. **Check the role.** Is this role supposed to use this screen at all?
+4. **Check the saved rulings.** Look in `docs/qa/handoff.md` (accepted behaviours) and `docs/qa/LESSONS.md`.
+   A decision already made by the product owner is not a bug, even if the spec still says otherwise.
+5. **When the spec and the build disagree**, and nobody has ruled on it, report the difference and say which
+   source you used. If it's a real conflict, it may be a product owner question instead (see `PO-QUESTION-RULE.md`).
+6. **When the spec is silent**, judge by the design, then by consistency with the rest of the product, and say so.

@@ -1,0 +1,52 @@
+# How test users are made
+
+A **fixture** is a test account already in a known state. This recipe keeps every agent making them the same way.
+
+**Rule zero:** check your lane journal first. If you already own a user in the state you need, use it.
+
+## Names and emails
+
+- Short, human-looking names. The email alias matches the name: `Sara Chaudhry` → `{{mailbox.example_alias}}`.
+- Alias pattern for this project: `{{mailbox.alias_pattern}}`. Every alias lands in {{mailbox.address}}.
+- Add the lane to keep aliases unique: `sara.c1` for lane A, `sara.c1b` for lane B.
+- No machine-style names (`test-2026-10-29-001`). Real-looking data finds real-looking bugs.
+
+## The steps
+
+1. **Create** through the real sign-up screens (headless Playwright). Use the API only when sign-up itself isn't under test, and say so.
+2. **Verify the email**: ask the lead for the link from the mailbox (`blocked[]` with the alias), then open it headlessly.
+{{#if has_payments}}
+3. **Pay** through the real payment screen with the {{payments.provider}} test card `{{payments.test_card}}`, any future expiry, any CVC.
+{{else}}
+3. **Pay** (if the flow has payments) only with test payment methods.
+{{/if}}
+{{#if approval_roles}}
+4. **Approval** ({{#each approval_roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}): stop and return `blocked` with an `admin_request`. The lead runs the admin step, then you continue.
+{{else}}
+4. **Approval**: no role needs admin approval in this project.
+{{/if}}
+5. **Record it**:
+   - append the credentials to `{{secrets_file}}` in one command:
+     ```bash
+     mkdir -p ~/.qa-secrets && chmod 700 ~/.qa-secrets
+     printf '%s\n' 'FIX_{{roles.0.key}}_A_U1_EMAIL={{mailbox.example_alias}}' 'FIX_{{roles.0.key}}_A_U1_PASSWORD=<generated>' 'FIX_{{roles.0.key}}_A_U1_ID=<user id>' >> {{secrets_file}}
+     chmod 600 {{secrets_file}}
+     ```
+   - update your lane journal `docs/qa/lanes/<role>-<lane>.json` (no secrets)
+   - add a row to `docs/qa/test-users.md`
+
+## Getting a user into a state
+
+| State | How to reach it |
+|---|---|
+{{#each states}}
+| {{this}} | _fill in: the real screens first, admin tool if allowed_ |
+{{/each}}
+
+Fill this table in during the first week. It is the most reused page in the workspace.
+
+## Never
+
+- Fake a state on the server to skip a step (unless the lead allows it; then write down that the real path is untested).
+- Put passwords or codes in the repo, a report or chat.
+- Use the same user in two lanes.

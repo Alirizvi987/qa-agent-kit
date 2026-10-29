@@ -1,0 +1,63 @@
+# {{project.name}} test plan
+
+## What we test
+
+| Surface | Address | Who uses it |
+|---|---|---|
+{{#each portals}}
+| {{name}} | {{url}} | _roles_ |
+{{/each}}
+{{#if has_mobile}}
+| Mobile app | {{mobile.package}} | _roles_ |
+{{/if}}
+
+## Roles
+
+{{#each roles}}
+### {{name}}
+
+{{summary}}. Uses the {{portal_name}}.{{#if needs_approval}} Needs admin approval before they can use the product.{{/if}}
+
+Main flows:
+- _sign-up / sign-in_
+- _…_
+
+{{/each}}
+
+## Account states
+
+{{#each states}}
+- **{{this}}**: _what the user can and can't do; how they get here; how they leave_
+{{/each}}
+
+## Environments
+
+{{#each environments}}
+- `{{name}}`: {{url}}{{#if production}} (read-only){{/if}}
+{{/each}}
+
+## Screen widths and devices
+
+- Web: {{widths_text}}
+{{#if has_mobile}}
+- Mobile: {{mobile.device}} ({{mobile.width}}×{{mobile.height}} @ {{mobile.dpi}} dpi) plus {{mobile.emulators}} matched emulators
+{{/if}}
+
+## Every screen is checked for
+
+Design · empty · loading · error · validation · no permission · role-specific states · every control works ·
+the server agrees · emails · widths/devices.
+
+## Always-on edge cases
+
+- Double click / double tap on anything that saves or pays
+- Two tabs saving the same thing
+- Empty, too long, wrong-format input
+- Slow or no network; server error
+- Expired links; Back button in the middle of a flow
+- Opening a page by its address without permission
+- Time zones (dates saved a day early or late)
+- Same account signed in on two devices
+{{#if has_payments}}
+- Card declined, then retried; paying twice
+{{/if}}

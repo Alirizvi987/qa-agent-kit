@@ -1,0 +1,15 @@
+# Coverage grid: {{run.name}}
+
+| Screen PR | Server PRs | Roles | States | Design frames | Emails | Gaps |
+|---|---|---|---|---|---|---|
+| | | | | | | |
+
+## Impact (roles × states)
+
+Legend: **T** tested · **F** issue · **–** not affected · **n/a**
+
+| State | {{#each roles}}{{name}} | {{/each}}
+|---|{{#each roles}}---|{{/each}}
+{{#each states}}
+| {{this}} | {{#each roles}}  | {{/each}}
+{{/each}}

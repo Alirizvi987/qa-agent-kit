@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run smoke:*)",
+      "Bash(npm run health:*)",
+      "Bash(npm run signin:*)",
+      "Bash(npm run new-run:*)",
+      "Bash(npm run generate:*)",
+      "Bash(node scripts/:*)",
+      "Bash(npx playwright:*)"{{#if has_mobile}},
+      "Bash(adb devices:*)",
+      "Bash(scripts/mobile/adb.sh:*)"{{/if}}
+    ],
+    "deny": [
+      "Read(~/.qa-secrets/**)"
+    ]
+  }
+}

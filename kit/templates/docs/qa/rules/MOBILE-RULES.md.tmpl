@@ -1,0 +1,46 @@
+# How the mobile app is tested
+
+{{#if mobile.android}}
+## The phones
+
+- **Real phone:** {{mobile.device}}, connected by cable. Controlled with **ADB** (Android's own remote
+  control) and **UIAutomator** (reads every button and label on screen). Helper: `scripts/mobile/adb.sh`.
+- **Emulators:** {{mobile.emulators}} virtual phones on the computer, set to the same screen
+  ({{mobile.width}}×{{mobile.height}} at {{mobile.dpi}} dpi) so layout findings match the real phone.
+  Create them once with `scripts/mobile/emulator-setup.sh`.
+- **Same app everywhere.** Copy the app off the real phone and install that exact file on every emulator
+  (`scripts/mobile/adb.sh clone-apk`). Then all devices run identical bits.
+- **One agent per device.** Two agents on one phone fight over the screen. Give each agent its own
+  device id (`adb devices` lists them).
+- App package: `{{mobile.package}}`
+{{/if}}
+{{#if mobile.ios}}
+## iOS
+
+Use the iOS Simulator on a Mac (Xcode). Record the simulator model and iOS version with every result.
+{{/if}}
+
+## Before trusting any result
+
+1. **Record the build**: package, version, build number, environment, date.
+2. **Prove the app reaches the server.** Try a login with a wrong password and look for the server's own
+   error message. "No connection" means fix the setup first, not a bug.
+3. **Check the right app is in front** before typing anything, especially passwords:
+   `scripts/mobile/adb.sh fg`.
+
+## What to cover
+
+- Fresh install, upgrade from the previous build, first launch
+- Sent to the background and back, force-closed and reopened
+- Sign out and in; the same account signed in on another device
+- Forced update to a newer version, if the app has one
+- No internet, slow internet, server errors
+- Keyboard covering a field, scrolling to the last button, system Back button
+- Dark mode, large text, long names, empty lists
+- Links from emails (do they open the app or the browser?), permission denied (location, camera, notifications)
+- Location-based features with a fake GPS position
+- The same screens on the web: same data, same rules
+
+## Proof
+
+Save a screenshot and a UI dump per step (`adb.sh shot <name>` and `adb.sh dump <name>`) into the run folder.
