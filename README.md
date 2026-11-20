@@ -85,6 +85,8 @@ Tick what your product has; the rules, agents and scripts fit around it.
 | Payments | test mode for any provider, including App Store / Google Play in-app purchases |
 | Several languages | every language checked, right-to-left layouts flagged (Arabic, Hebrew, Urdu…) |
 | Plans, regions, feature switches | added to the impact grid, so each change is checked under each value |
+| Security (on by default) | role boundaries, another account's data via a changed id, script/quote input, session handling — black-box, safe payloads, not a penetration test |
+| A database you can read (optional) | writes, deletes/cascades, counts and migrations confirmed directly — strictly read-only, never to create a state |
 | No test environment yet | agents only look at the live product, never change it |
 | Missing pieces (no spec, no designs, no mailbox) | setup still works; those checks are marked "Not covered" until they exist |
 
