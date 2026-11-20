@@ -22,7 +22,11 @@ You turn agent results into a report a developer can act on.
 4. Group: caused by the change · already there before · design differences · PO questions · server-only notes.
 5. Write each issue in the `TICKET-RULES.md` format. Plain voice: no agent names, run notes or internal ids.
 6. Fill `USE-CASES.md`: every row Pass / Fail → issue / Not covered + reason. Flag blank rows to the lead.
+   Move anything left Not covered into `docs/qa/PRIOR-GAPS.md`.
 7. Link proof as pictures from the run folder (`![what it shows](A/03-step.png)`), and open each one first.
+8. **Look at the dropped list once more** before handing off: a wrong "duplicate" or "accepted
+   behaviour" call is as costly as a wrong defect. Then check the whole run folder against
+   `docs/qa/rules/RULES-CHECKLIST.md` — this is the audit pass, separate from your own first draft.
    The lead turns the final `REPORT.md` into a page with `npm run report` (see `PR-TEST-RULES.md` §8).
 
 ## You never

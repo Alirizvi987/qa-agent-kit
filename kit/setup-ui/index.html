@@ -489,15 +489,21 @@ async function submit(path) {
   }
   const list = (label, xs) => xs?.length ? `<p style="margin:8px 0 2px"><b>${label} (${xs.length})</b></p><ul class="files">${xs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
   const verb = r.dry ? ['Would create', 'Would update'] : ['Created', 'Updated'];
+  const hasWeb = state.portals.some(p => (p.name || '').trim() && p.kind !== 'api');
+  const hasAny = state.portals.some(p => (p.name || '').trim());
+  // Only the steps this project actually needs — skip browser install for a mobile-only or
+  // design-only project, skip "check websites" when there's nothing with a URL to check.
+  const steps = [];
+  steps.push(['Install the tools', `npm install${hasWeb ? ` && npx playwright install ${esc((state.browsers || ['chromium']).join(' ') || 'chromium')}` : ''}`]);
+  if (state.mobile.android) steps.push(['Set up the Android device or emulators (once)', 'See the Setup guide link below: scripts/mobile/emulator-setup.sh']);
+  if (state.mobile.ios) steps.push(['Set up the iOS Simulator (once, needs a Mac with Xcode)', 'scripts/mobile/ios.sh boot']);
+  steps.push(['Start with Claude Code', 'Read AGENTS.md and start docs/qa/FIRST-WEEK.md with me.']);
+  if (hasAny) steps.push(['Check everything opens', 'npm run smoke']);
   const next = r.dry ? '' : `
     <div class="next">
       <h3>Next steps</h3>
-      <p style="margin:0">1. In a terminal in this folder, install the browser tools once:</p>
-      <div class="cmd"><span>npm install && npx playwright install ${esc((state.browsers || ['chromium']).join(' ') || 'chromium')}</span><button type="button" data-copy>Copy</button></div>
-      <p style="margin:0">2. Open Claude Code in this folder and say:</p>
-      <div class="cmd"><span>Read AGENTS.md and start docs/qa/FIRST-WEEK.md with me.</span><button type="button" data-copy>Copy</button></div>
-      <p style="margin:0">3. Check every website loads:</p>
-      <div class="cmd"><span>npm run smoke</span><button type="button" data-copy>Copy</button></div>
+      ${steps.map(([label, cmd], i) => `<p style="margin:0">${i + 1}. ${esc(label)}:</p><div class="cmd"><span>${esc(cmd)}</span><button type="button" data-copy>Copy</button></div>`).join('')}
+      <p style="margin:8px 0 0;font-size:.875rem;color:var(--muted)">Phones and simulators: <a href="docs/kit/SETUP-GUIDE.md">docs/kit/SETUP-GUIDE.md</a>.</p>
     </div>`;
   $('#result').className = 'msg ok';
   $('#result').innerHTML = `<h3>${r.dry ? 'Preview: nothing was written' : 'Your QA workspace is ready'}</h3>

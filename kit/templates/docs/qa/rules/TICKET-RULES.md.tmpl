@@ -7,7 +7,9 @@ no agent names, no internal account ids, no blame.
 
 The finding has passed every gate:
 
-1. The spec agrees it's wrong (`PRD-FIRST-RULE.md`), with the section number
+1. The spec, the design, or an explicit ruling in `handoff.md` agrees it's wrong (`PRD-FIRST-RULE.md`),
+   with the section or ruling named. A developer's PR description, code comment or commit message is
+   never enough on its own, in either direction: it doesn't make a finding valid, and it doesn't close one.
 2. Proof from this run, and every attachment opens
 3. Reproduced from the screens only, {{rules.recheck_times}} times, by someone other than the finder
 4. Not an accepted behaviour or a known issue (search the tracker and `handoff.md` first)

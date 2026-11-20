@@ -4,6 +4,11 @@ A **fixture** is a test account already in a known state. This recipe keeps ever
 
 **Rule zero:** check your lane journal first. If you already own a user in the state you need, use it.
 
+**Rule zero-b: fresh data for a verdict.** Reusing a user is for convenience, not for passing or
+failing something. If a user is old enough that the product, the plan or the rules it was made under
+may have changed since, make a new one before you give a Pass or Fail on current behaviour. Old
+fixtures are fine as background or setup, never as the only evidence for today's result.
+
 ## Names and emails
 
 - Short, human-looking names. The email alias matches the name: `Sara Chaudhry` → `{{mailbox.example_alias}}`.

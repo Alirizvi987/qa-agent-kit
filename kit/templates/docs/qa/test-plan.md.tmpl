@@ -73,6 +73,13 @@ Main flows:
 {{#if has_designs}}Design · {{/if}}empty · loading · error · validation · no permission · role-specific states · every control works ·
 the server agrees{{#if sends_email}} · emails{{/if}} · widths/devices{{#if has_locales}} · every language{{/if}}{{#if rules.accessibility}} · accessibility{{/if}}.
 
+**"Every control works" means operated, not glanced at.** For a form or filter bar with several
+fields: type into each one, toggle each switch, pick each option, press Save or Apply, and check the
+result — looks-editable must be editable, must-not-edit must look and behave disabled. A field no one
+touched is not tested. A filter list needs: every option alone, combinations, "All" compared against
+every option ticked (a mismatch is a finding), clearing it, paging and URL state, and the same check
+repeated on every tab or view that lists the same records.
+
 ## Always-on edge cases
 
 - Double click / double tap on anything that saves or pays

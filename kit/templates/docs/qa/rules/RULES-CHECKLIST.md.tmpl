@@ -1,0 +1,27 @@
+# Rules checklist
+
+Every agent self-checks against this list before returning. Before a report is published, the lead
+(or a fresh agent with no stake in the findings) re-checks the whole run folder against it. A run with
+a gap goes back, not out the door.
+
+- [ ] Read `AGENTS.md`, `docs/qa/handoff.md` and the rule file for this task before starting
+- [ ] `docs/qa/PRIOR-GAPS.md` checked for rows on a touched surface; tested, not skipped
+- [ ] Impact map built from the diff: every shared piece touched, every consumer found on every portal
+{{#if has_designs}}
+- [ ] Design checked frame by frame, inventory first, newest designs only, for the touched portal
+{{/if}}
+{{#if sends_email}}
+- [ ] Every action that can send mail checked: arrived, once, right people, right template, links work
+{{/if}}
+- [ ] Every control operated (typed into, toggled, saved), not just looked at
+- [ ] Every account state this PR can reach checked, for every role: {{states}}
+- [ ] Test users are fresh enough for today's verdict, not stale fixtures reused past their shelf life
+- [ ] Every candidate defect reproduced from the screens{{#if sends_email}} or delivered emails{{/if}} only,
+      {{rules.recheck_times}} times, by someone other than the finder
+- [ ] Every "Expected" traces to the spec, the design, or a named ruling — never a PR description alone
+- [ ] Every use case has a status: Pass · Fail → issue · Not covered + reason; "Not covered" is near zero
+      and each one says what was tried
+- [ ] Shared settings changed during testing are back to their original value, logged in `RESTORE-LOG.md`
+- [ ] No password, token, session cookie or card number anywhere in the run folder or the report
+- [ ] The report shows only what's still open: fixed, ignored and accepted-behaviour items left out
+- [ ] Surprises added to `docs/qa/LESSONS.md`; leftovers added to `docs/qa/PRIOR-GAPS.md`

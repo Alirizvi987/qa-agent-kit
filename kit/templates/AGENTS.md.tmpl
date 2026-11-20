@@ -142,6 +142,9 @@ _(Starter states. Replace them with this product's real ones in `project.json`.)
 16. **Every use case gets a status before a report is shared:** Pass, Fail → issue, or Not covered + reason. See `docs/qa/rules/PR-TEST-RULES.md`.
 17. **Keep known failures visible.** "Coverage complete" means everything was tested, not that everything passed.
 18. **Save lessons.** When something surprises you, add a short entry to `docs/qa/LESSONS.md` so the next run doesn't repeat it.
+19. **Self-check before returning, audit before publishing.** Every agent checks its own work against
+    `docs/qa/rules/RULES-CHECKLIST.md`. Before a report is shared, the lead (or a fresh agent) checks the
+    whole run folder against the same list. A gap goes back, not out the door.
 {{#if rules.accessibility}}
 19. **Accessibility is in scope.** Every screen is checked for keyboard use, visible focus, labels a screen reader can read, colour contrast and text that still fits at 200% zoom{{#if has_mobile}} or large system text{{/if}}.
 {{/if}}
@@ -186,4 +189,6 @@ The lead session (the person plus the main Claude Code chat) plans the run, read
 - `docs/qa/agents/fixture-recipe.md`: how test users are made
 - `docs/qa/agents/verdict-schema.md`: the format agents report in
 - `docs/qa/flow-backlog.md`: what to test next
+- `docs/qa/PRIOR-GAPS.md`: Not covered / deferred items carried forward until they're tested
+- `docs/qa/rules/RULES-CHECKLIST.md`: the self-check and pre-publish audit list
 - `docs/qa/LESSONS.md`: lessons learned, shared with the team

@@ -1,0 +1,12 @@
+# Prior gaps
+
+Things left "Not covered" or deferred by an earlier run, carried forward so they get tested instead
+of quietly forgotten. Every PR run checks this file first (`docs/qa/rules/PR-TEST-RULES.md` §1) for
+rows on a surface it touches, tests them, and removes the row — or updates the reason if it's still
+blocked.
+
+| Added | From run | Case | Surface | Reason it was Not covered | Status |
+|---|---|---|---|---|---|
+
+Empty is the goal. A long-lived row is a sign something needs unblocking on purpose (a missing
+fixture state, a missing test environment), not a permanent excuse.

@@ -31,5 +31,6 @@ You can hand most of these to Claude Code: say _"Do step 3 of docs/qa/FIRST-WEEK
 {{/if}}
 - [ ] **5. Create test users**: one lane per role ({{#each roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}), following `agents/fixture-recipe.md`. Fill in "Getting a user into a state".
 - [ ] **6. Write the flow backlog** (`flow-backlog.md`): every flow, in the order they matter.
-- [ ] **7. Run the first flow end to end** at smoke depth for every role. Save lessons in `LESSONS.md`.
+- [ ] **7. Run the first flow end to end** at smoke depth for every role. Save lessons in `LESSONS.md`,
+  and check it against `docs/qa/rules/RULES-CHECKLIST.md` before you call it done.
 - [ ] **8. Update `handoff.md`.** From now on, keep it current at the end of every session.
