@@ -151,6 +151,10 @@ After setup, this folder contains:
 - [Daily work](docs/kit/DAILY-WORK.md): what to say to Claude Code for each kind of task
 - [Setup guide](docs/kit/SETUP-GUIDE.md): Claude Code, connectors, Android phones and emulators
 
+## Contributing
+
+Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 To check the kit itself after changing a template: `npm test`. It builds a workspace for nine different
 kinds of project (web + app, mobile only, API only, public site, live-only, inside a product repo, bare minimum, odd characters,
 no email) and checks every file.
