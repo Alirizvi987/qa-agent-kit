@@ -35,7 +35,9 @@ the spec, and list "design check" as Not covered in the report._
 - Check only the **newest** designs, and only the frames for the screens and states **this PR** builds or changes.
 - Only the portal the PR is for. Other pages the PR touches are compared with the previous build for side effects.
 - For each frame: text, order, states (default, hover, disabled, empty, error), sizes, spacing, fonts,
-  colours, corners, shadows, icons.
+  colours, corners, shadows, icons. An icon is checked against the design's icon **component**, not
+  just "looks close enough" — and the same icon is compared on every portal that shows it, not only
+  the one the PR names.
 - **Read values, don't guess them.** Design values come from the design file (Figma connector).
   Live values come from the page (element size and computed style). Never measure screenshots.
 - Re-list the design frames every run. Frame ids change.

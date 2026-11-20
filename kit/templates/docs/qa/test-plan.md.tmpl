@@ -77,8 +77,14 @@ the server agrees{{#if sends_email}} · emails{{/if}} · widths/devices{{#if has
 fields: type into each one, toggle each switch, pick each option, press Save or Apply, and check the
 result — looks-editable must be editable, must-not-edit must look and behave disabled. A field no one
 touched is not tested. A filter list needs: every option alone, combinations, "All" compared against
-every option ticked (a mismatch is a finding), clearing it, paging and URL state, and the same check
-repeated on every tab or view that lists the same records.
+every option ticked (a mismatch is a finding), a **Reset / Clear all control** (missing one is a
+finding), clearing it, paging and URL state, and the same check repeated on every tab or view that
+lists the same records. Keep one `FIELD-MATRIX.md` per run (`npm run new-run` creates it) instead of
+trusting memory for which control was actually touched.
+
+**Any number, chart or exported file the change adds or changes** is checked against an independent
+source — not the same query the feature uses to display it — value by value, on every surface that
+shows it (web, {{#if has_mobile}}the app, {{/if}}emails, exports).
 
 ## Always-on edge cases
 

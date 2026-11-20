@@ -39,7 +39,9 @@
   simple YAML steps) or Appium/XCUITest if the developers already have it. Keep flows in the run folder.
 - Record the simulator model and iOS version with every result (`scripts/mobile/ios.sh build`).
 - A real iPhone is needed for camera, Face ID, real push delivery and purchases. Those are tested by the lead
-  by hand, or marked "Not covered: needs a real iPhone".
+  by hand, or marked "Not covered: needs a real iPhone" — unless the team has a real-device control
+  tool or connector (a paired physical phone driven remotely): wire its screenshot/tap/type commands
+  into `scripts/mobile/ios.sh` the same way, and those checks move from "by hand" to automated.
 
 {{/if}}
 ## Before trusting any result
