@@ -45,7 +45,8 @@ const variants = {
     'docs/qa/rules/EMAIL-CHECKS.md': [/qa\.team@acme\.example/],
     'docs/qa/rules/PR-TEST-RULES.md': [/Publish `REPORT\.html` as a Claude artifact/, /same link/, /Impact map, built from the diff/, /PRIOR-GAPS\.md/, /Audit before publishing/, /Not covered stays near zero/, /Open items only/],
     'docs/qa/rules/RETEST-RUNBOOK.md': [/REPORT-LINK\.txt/],
-    'docs/qa/rules/RULES-CHECKLIST.md': [/Impact map built from the diff/, /PRIOR-GAPS\.md/, /stale fixtures/],
+    'docs/qa/rules/RULES-CHECKLIST.md': [/Impact map built from the diff/, /PRIOR-GAPS\.md/, /stale fixtures/, /SECURITY-RULES\.md/],
+    'docs/qa/rules/SECURITY-RULES.md': [/safe payloads/, /Can one account see another's data by changing an id/, /script tag/],
     'docs/qa/PRIOR-GAPS.md': [/Added/, /Reason it was Not covered/],
     'docs/qa/agents/fixture-recipe.md': [/fresh data for a verdict/],
     'docs/qa/rules/TICKET-RULES.md': [/never enough on its own/],
@@ -55,7 +56,7 @@ const variants = {
     'docs/qa/rules/MOBILE-RULES.md': [/real-device control/],
     '.claude/agents/qa-business.md': [/needs? approval/i],
     '.claude/settings.json': [/ios\.sh/, /adb\.sh/],
-  }, absent: ['docs/qa/rules/API-RULES.md'] },
+  }, absent: ['docs/qa/rules/API-RULES.md', 'docs/qa/rules/DB-RULES.md'] },
   'mobile app only': { p: await json(join(KIT, 'examples', 'mobile-app-only.json')), expect: {
     'AGENTS.md': [/Uses the mobile app/, /Accessibility is in scope/],
     '.claude/agents/qa-member.md': [/mobile helpers/, /device id/],
@@ -79,6 +80,9 @@ const variants = {
     warn: /No tester mailbox/, expect: { 'AGENTS.md': [/None listed yet/, /not set up yet/, /No product spec linked/], 'docs/qa/rules/EMAIL-CHECKS.md': [/No tester mailbox is set up yet/] } },
   'inside the product repo (code folder)': { p: { ...example, sources: { ...example.sources, code_path: '..' } }, expect: {
     'AGENTS.md': [/Product code on this computer: `\.\.`/], '.claude/settings.json': [/git -C \.\. diff/], 'docs/qa/rules/PR-TEST-RULES.md': [/git -C \.\. fetch/] } },
+  'security off, DB on': { p: { ...example, rules: { ...example.rules, security_testing: false }, sources: { ...example.sources, db: 'staging read replica, psql -h ro.acme.test' } },
+    expect: { 'AGENTS.md': [/Database \(read-only, for verification only\): staging read replica/], 'docs/qa/rules/DB-RULES.md': [/Read-only/, /orphaned child/], 'docs/qa/rules/PR-TEST-RULES.md': [/Confirm a save against the database/] },
+    absent: ['docs/qa/rules/SECURITY-RULES.md'] },
   'odd characters': { p: { project: { name: 'Café "Pro" & Co\'s' }, portals: [{ name: 'Web app (beta)', url: 'http://localhost:3000' }], roles: [{ name: 'Power user "admin"', is_admin: true }, { name: 'Gäst' }], states: ['Trial | ended', 'Ok'] },
     expect: { '.claude/agents/qa-power-user-admin.md': [/Power user 'admin'/], '.claude/agents/qa-gast.md': [/Gäst/] } },
   'no admin, no email, PayPal without card': { p: { project: { name: 'Quiet' }, environments: [{ name: 'test', url: 'https://t.example' }], portals: [{ name: 'Portal', url: 'https://t.example' }], roles: [{ name: 'Member', needs_approval: true }], states: ['New'], mailbox: { product_sends_email: false }, payments: { provider: 'PayPal' }, rules: { report: 'Issues drafted for the tracker' } },

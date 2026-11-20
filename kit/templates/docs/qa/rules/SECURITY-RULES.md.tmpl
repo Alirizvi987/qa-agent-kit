@@ -1,0 +1,60 @@
+# Security checks on every change
+
+These are black-box checks any tester can run, with safe payloads, from signed-in test accounts on
+{{main_env}}. They are not a penetration test and don't replace one before a real launch — they catch
+the mistakes that show up over and over in day-to-day changes.
+
+## 1. Every role boundary, both ways
+
+For every new or changed screen{{#if has_api}} and endpoint{{/if}}:
+
+- **Can a lower role reach it?** Try the URL{{#if has_api}} or the API call{{/if}} directly as a role
+  that shouldn't have it, and signed out. Expect a clean refusal (redirect or 401/403), never the page
+  or the data, and never a 500.
+- **Can one account see another's data by changing an id?** Sign in as account A, note an id (an
+  order, a message, a file) that belongs to account A, then as account B request that same id directly
+  (URL, API call, or a file/export link). This is the single most common hole — test it on every
+  record type the change touches, not only the headline screen.
+- **Does the UI merely hide the control, while the server still allows the action?** Try the
+  underlying {{#if has_api}}API call{{else}}request{{/if}} directly even when no button is shown for
+  that role.
+
+## 2. Input that fights back
+
+For every field, including search boxes, filters and file names:
+
+- A script tag (`<script>alert(1)</script>`) and an HTML tag — it must show as plain text, never run
+  or render as markup, anywhere it's later displayed (profile pages, admin lists, emails, exports).
+- A quote-heavy string (`' OR '1'='1`, `"; DROP TABLE x; --`) — expect a normal validation error or a
+  clean save of the literal text, never a server error, and never a result that looks like the query
+  ran unintended logic.
+- A very long string, emoji, null bytes and path characters (`../../etc/passwd`) in anything that
+  becomes a file path or filename.
+- Uploads: a file with the wrong extension disguised as the right type, and an oversized file. Expect
+  a clean rejection, not a crash or an executed file.
+
+## 3. Sessions and tokens
+
+- Signing out invalidates the session everywhere it was used (another tab, another device).
+- A token/cookie keeps working only as long as it should: check what happens to it after a password
+  change, a sign-out, and (if the product has one) an admin-forced sign-out of that user.
+- Repeated wrong passwords or codes get slowed down or locked out — not accepted forever at full speed.
+- Sensitive actions (change password/email, delete account, payment) ask for the current password or
+  equivalent, not just an active session.
+
+## 4. What should never leak
+
+- API and page responses carry only what that role should see — no other users' emails, tokens, full
+  card numbers or internal ids inside a list meant for someone else.
+- Error messages are plain and generic from the outside — no stack trace, file path, server version or
+  internal id text shown to the user.
+- `{{secrets_file}}` and this repo stay exactly as described in `AGENTS.md` rule 6: nothing secret in a
+  screenshot, a report or a test script.
+
+## Reporting
+
+A security finding follows `TICKET-RULES.md` like any other, with one difference: **severity starts at
+P1** for anything that exposes another account's data or lets a role bypass its boundary, P2 for
+anything else on this list. Never publish the exact payload that triggered it in a shared report —
+describe the class of input ("a script tag in the name field") so the report stays safe to share
+widely; keep the exact string in the run folder only.

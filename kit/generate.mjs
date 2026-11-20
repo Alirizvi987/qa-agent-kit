@@ -33,6 +33,8 @@ const MANIFEST = [
   { t: 'docs/qa/rules/RULES-CHECKLIST.md', kind: 'rule' },
   { t: 'docs/qa/rules/EMAIL-CHECKS.md', kind: 'rule', when: d => d.sends_email },
   { t: 'docs/qa/rules/API-RULES.md', kind: 'rule', when: d => d.has_api },
+  { t: 'docs/qa/rules/SECURITY-RULES.md', kind: 'rule', when: d => d.has_security },
+  { t: 'docs/qa/rules/DB-RULES.md', kind: 'rule', when: d => d.has_db },
   { t: 'docs/qa/rules/MOBILE-RULES.md', kind: 'rule', when: d => d.has_mobile },
   { t: 'docs/qa/agents/README.md', kind: 'rule' },
   { t: 'docs/qa/agents/fixture-recipe.md', kind: 'rule' },
@@ -187,6 +189,8 @@ export function prepare(p) {
   if (/^none/i.test(d.sources.tracker || '')) d.sources.tracker = '';
   d.has_designs = d.sources.designs.length > 0;
   d.sources.code_path = String(d.sources.code_path || '').trim();
+  d.sources.db = String(d.sources.db || '').trim();
+  d.has_db = Boolean(d.sources.db);
 
   d.mailbox = { connector: 'Gmail', ...(d.mailbox || {}) };
   d.sends_email = d.mailbox.product_sends_email !== false;
@@ -221,9 +225,11 @@ export function prepare(p) {
 
   d.rules = {
     recheck_times: 2, prd_first: true, min_design_diff_px: 2, no_cleanup: true,
-    headless_first: true, accessibility: false, severity: ['P1', 'P2', 'P3'], report: 'A shareable web page',
+    headless_first: true, accessibility: false, security_testing: true,
+    severity: ['P1', 'P2', 'P3'], report: 'A shareable web page',
     ...(d.rules || {}),
   };
+  d.has_security = d.rules.security_testing !== false;
   d.rules.severity = list(d.rules.severity).length ? d.rules.severity : ['P1', 'P2', 'P3'];
   d.report_artifact = /artifact|web page/i.test(d.rules.report);
   d.report_tracker = /tracker/i.test(d.rules.report);

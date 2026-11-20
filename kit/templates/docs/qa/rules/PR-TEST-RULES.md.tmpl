@@ -21,6 +21,14 @@ time PRs are handed over for testing on {{main_env}}.
    states × design frames × shared-piece impact × gaps. Create the run folder with `npm run new-run -- <name>`.
 7. **Check `docs/qa/PRIOR-GAPS.md` first.** Anything left "Not covered" or deferred by an earlier run,
    on a surface this PR touches, gets tested now. Update that file when the run ends.
+{{#if has_security}}
+8. **Security checks on anything new**: a new field, a new screen, a new role boundary or a new
+   endpoint gets the checks in `docs/qa/rules/SECURITY-RULES.md`, not only the happy path.
+{{/if}}
+{{#if has_db}}
+9. **Confirm a save against the database** for this PR's main write, per `docs/qa/rules/DB-RULES.md` —
+   read-only, never to create a state.
+{{/if}}
 
 Account states for this project: {{states}}.
 Roles: {{#each roles}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}.

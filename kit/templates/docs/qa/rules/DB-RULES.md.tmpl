@@ -1,0 +1,34 @@
+# Checking the database directly
+
+**Read-only.** This is for confirming what the screens{{#if has_api}}/API{{/if}} show against what was
+actually saved — never for creating, fixing or faking a state. A state reached by writing to the
+database directly is not a tested state (see `AGENTS.md` rule 9).
+
+Access for this project: {{sources.db}}
+
+## When to use it
+
+- **After an action, confirm the write.** The screen says "saved" — check the row exists, with the
+  right values, the right foreign keys, and nothing else changed that shouldn't have.
+- **After a delete or a cascade** (deleting a user, a parent record), check what the product claims is
+  removed is actually gone, and what it claims is kept is still there and still correct (orphaned child
+  rows are a common miss).
+- **Counts and totals.** When a screen shows a count, a sum or a report figure, run the equivalent query
+  yourself and compare — this is the independent-source check from `test-plan.md`, done at the source.
+- **Migrations.** After a schema change ships, spot-check existing rows still read correctly through
+  the product, not only new ones.
+- **Timestamps and time zones.** Compare what's stored (usually UTC) against what the screen displays,
+  across at least one date near midnight in the product's main time zone.
+
+## Never
+
+- Write, update or delete anything to reach a test state, skip a step, or "fix" data mid-test.
+- Put a raw query, a connection string, or any value from it that is itself a secret into a report, a
+  screenshot or this repo.
+- Treat a database value as ground truth over the spec when they disagree — that's a question for the
+  product owner (`PO-QUESTION-RULE.md`), not a silent "the database is right."
+
+## Reporting
+
+A mismatch between what the screen shows and what's stored follows `TICKET-RULES.md`. Say which query
+you ran (safe to share) and what it returned, alongside the screen's proof.

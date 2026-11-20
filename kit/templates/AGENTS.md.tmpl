@@ -87,6 +87,9 @@ _(Starter states. Replace them with this product's real ones in `project.json`.)
 {{#if sources.code_path}}
 - Product code on this computer: `{{sources.code_path}}`. Read changes there to find impact: `git -C {{sources.code_path}} log --oneline -20`, `git -C {{sources.code_path}} diff <base>...<branch> --stat`. Read only; never commit, switch branches or edit code there.
 {{/if}}
+{{#if has_db}}
+- Database (read-only, for verification only): {{sources.db}}. See `docs/qa/rules/DB-RULES.md`.
+{{/if}}
 {{#if sends_email}}
 {{#if has_mailbox}}
 - Test mailbox: {{mailbox.address}} (read through the {{mailbox.connector}} connector)
@@ -146,7 +149,14 @@ _(Starter states. Replace them with this product's real ones in `project.json`.)
     `docs/qa/rules/RULES-CHECKLIST.md`. Before a report is shared, the lead (or a fresh agent) checks the
     whole run folder against the same list. A gap goes back, not out the door.
 {{#if rules.accessibility}}
-19. **Accessibility is in scope.** Every screen is checked for keyboard use, visible focus, labels a screen reader can read, colour contrast and text that still fits at 200% zoom{{#if has_mobile}} or large system text{{/if}}.
+20. **Accessibility is in scope.** Every screen is checked for keyboard use, visible focus, labels a screen reader can read, colour contrast and text that still fits at 200% zoom{{#if has_mobile}} or large system text{{/if}}.
+{{/if}}
+{{#if has_security}}
+21. **Security is checked on every change, not saved for a separate pass.** Role boundaries, another
+    account's data by changing an id, and script/quote input in every field. See `docs/qa/rules/SECURITY-RULES.md`. These are black-box checks with safe payloads, not a penetration test.
+{{/if}}
+{{#if has_db}}
+22. **Database checks are read-only.** {{sources.db}}. Never write, update or delete to reach a state. See `docs/qa/rules/DB-RULES.md`.
 {{/if}}
 
 ## The agent team
@@ -185,6 +195,12 @@ The lead session (the person plus the main Claude Code chat) plans the run, read
 {{/if}}
 {{#if has_mobile}}
 - `docs/qa/rules/MOBILE-RULES.md`: how the mobile app is tested
+{{/if}}
+{{#if has_security}}
+- `docs/qa/rules/SECURITY-RULES.md`: black-box security checks on every change
+{{/if}}
+{{#if has_db}}
+- `docs/qa/rules/DB-RULES.md`: checking the database directly, read-only
 {{/if}}
 - `docs/qa/agents/fixture-recipe.md`: how test users are made
 - `docs/qa/agents/verdict-schema.md`: the format agents report in
